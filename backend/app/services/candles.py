@@ -9,6 +9,7 @@ import httpx
 
 from app.config import settings
 from app.models.schemas import Candle
+from app.services.exchange import BYBIT_HEADERS
 
 # Підтримувані таймфрейми з ТЗ -> формат інтервалу, який очікує Bybit
 SUPPORTED_INTERVALS: dict[str, str] = {
@@ -40,7 +41,7 @@ async def fetch_candles(symbol: str, interval: str, limit: int = 500) -> list[Ca
         "limit": limit,
     }
 
-    async with httpx.AsyncClient(timeout=10.0) as client:
+    async with httpx.AsyncClient(timeout=10.0, headers=BYBIT_HEADERS) as client:
         response = await client.get(url, params=params)
         response.raise_for_status()
         payload = response.json()

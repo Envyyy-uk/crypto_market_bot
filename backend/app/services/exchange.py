@@ -38,6 +38,15 @@ ALT_SYMBOLS = [
 # Повний список пар, які бот відстежує (Завдання 3-4)
 TRACKED_SYMBOLS = MAJOR_SYMBOLS + ALT_SYMBOLS
 
+# Bybit (через Cloudflare) віддає 403 без цього заголовка для деяких хмарних
+# провайдерів (типовий User-Agent httpx-клієнта фільтрується як бот-трафік).
+BYBIT_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    )
+}
+
 
 def parse_ticker(data: dict) -> MarketTicker:
     """Bybit повертає price24hPcnt як частку (0.0245 = 2.45%), а не готовий відсоток."""
@@ -55,7 +64,7 @@ def parse_ticker(data: dict) -> MarketTicker:
 async def fetch_ticker(symbol: str) -> MarketTicker:
     """Отримати 24-годинну статистику для однієї пари."""
     url = f"{settings.bybit_rest_url}/v5/market/tickers"
-    async with httpx.AsyncClient(timeout=10.0) as client:
+    async with httpx.AsyncClient(timeout=10.0, headers=BYBIT_HEADERS) as client:
         response = await client.get(url, params={"category": "spot", "symbol": symbol})
         response.raise_for_status()
         payload = response.json()
@@ -79,7 +88,7 @@ async def fetch_markets(symbols: list[str] | None = None) -> list[MarketTicker]:
     wanted_set = set(wanted)
 
     url = f"{settings.bybit_rest_url}/v5/market/tickers"
-    async with httpx.AsyncClient(timeout=10.0) as client:
+    async with httpx.AsyncClient(timeout=10.0, headers=BYBIT_HEADERS) as client:
         response = await client.get(url, params={"category": "spot"})
         response.raise_for_status()
         payload = response.json()
