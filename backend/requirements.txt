@@ -11,8 +11,8 @@ pytest-asyncio==0.24.0
 sqlalchemy[asyncio]==2.0.32
 aiosqlite==0.20.0
 
-# Для PostgreSQL на проді (розкоментуйте і задайте DATABASE_URL):
-# asyncpg==0.29.0
+# Для PostgreSQL на проді (задайте DATABASE_URL):
+asyncpg==0.29.0
 
 # Авторизація (Завдання 13):
 PyJWT==2.9.0
