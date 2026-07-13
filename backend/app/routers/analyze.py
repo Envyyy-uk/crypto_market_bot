@@ -19,6 +19,7 @@ GET /api/analyze/{symbol} — повний аналіз пари. Завданн
     }
 """
 
+import logging
 import time
 
 from fastapi import APIRouter, HTTPException, Query
@@ -30,6 +31,7 @@ from app.analysis.trend import detect_trend
 from app.services.candles import SUPPORTED_INTERVALS, fetch_candles
 from app.services.exchange import TRACKED_SYMBOLS
 
+logger = logging.getLogger("analyze_router")
 router = APIRouter(tags=["analysis"])
 
 
@@ -56,6 +58,7 @@ async def analyze(
             detail="Not enough market data to analyze this pair.",
         )
     except Exception:
+        logger.exception("analyze failed for %s %s", symbol, interval)
         raise HTTPException(
             status_code=503,
             detail="Market data is temporarily unavailable. Please try again later.",

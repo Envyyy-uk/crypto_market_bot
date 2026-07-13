@@ -5,12 +5,15 @@ GET /api/backtest/{symbol} — прогін стратегії по історі
     GET /api/backtest/BTCUSDT?interval=1h&horizon=12
 """
 
+import logging
+
 from fastapi import APIRouter, HTTPException, Query
 
 from app.backtesting.backtest import run_backtest
 from app.services.candles import SUPPORTED_INTERVALS, fetch_candles
 from app.services.exchange import TRACKED_SYMBOLS
 
+logger = logging.getLogger("backtest_router")
 router = APIRouter(tags=["backtest"])
 
 
@@ -37,6 +40,7 @@ async def backtest(
             status_code=422, detail="Not enough historical data for a backtest."
         )
     except Exception:
+        logger.exception("run_backtest failed for %s %s", symbol, interval)
         raise HTTPException(
             status_code=503,
             detail="Market data is temporarily unavailable. Please try again later.",

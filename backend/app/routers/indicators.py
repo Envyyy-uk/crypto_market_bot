@@ -5,12 +5,15 @@ GET /api/indicators/{symbol} — значення технічних індик�
     GET /api/indicators/BTCUSDT?interval=1h
 """
 
+import logging
+
 from fastapi import APIRouter, HTTPException, Query
 
 from app.analysis.indicators import compute_indicators
 from app.services.candles import SUPPORTED_INTERVALS, fetch_candles
 from app.services.exchange import TRACKED_SYMBOLS
 
+logger = logging.getLogger("indicators_router")
 router = APIRouter(tags=["analysis"])
 
 
@@ -37,6 +40,7 @@ async def get_indicators(
             detail="Not enough market data to compute indicators for this pair.",
         )
     except Exception:
+        logger.exception("compute_indicators failed for %s %s", symbol, interval)
         raise HTTPException(
             status_code=503,
             detail="Market data is temporarily unavailable. Please try again later.",

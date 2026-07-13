@@ -5,12 +5,15 @@ GET /api/candles/{symbol} — Завдання 5 з ТЗ.
     GET /api/candles/BTCUSDT?interval=15m&limit=500
 """
 
+import logging
+
 from fastapi import APIRouter, HTTPException, Query
 
 from app.models.schemas import Candle
 from app.services.candles import SUPPORTED_INTERVALS, fetch_candles
 from app.services.exchange import TRACKED_SYMBOLS
 
+logger = logging.getLogger("candles_router")
 router = APIRouter(tags=["candles"])
 
 
@@ -33,7 +36,8 @@ async def get_candles(
     try:
         return await fetch_candles(symbol, interval, limit)
     except Exception:
-        # Користувачу не показуємо технічні деталі — Завдання 23.
+        # Користувачу не показуємо технічні деталі — Завдання 23, але в лог пишемо.
+        logger.exception("fetch_candles failed for %s %s", symbol, interval)
         raise HTTPException(
             status_code=503,
             detail="Market data is temporarily unavailable. Please try again later.",
