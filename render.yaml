@@ -1,0 +1,28 @@
+# Render blueprint (Завдання 26). Health check /health дає автоперезапуск (Завдання 27).
+#
+# Аналог для VPS (systemd): створіть /etc/systemd/system/cryptobot.service з
+#   [Service]
+#   WorkingDirectory=/opt/crypto-market-bot/backend
+#   ExecStart=/opt/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
+#   Restart=always
+services:
+  - type: web
+    name: crypto-market-bot-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        sync: false
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        sync: false

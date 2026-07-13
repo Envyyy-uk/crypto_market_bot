@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Теми (Завдання 18). Темна — за замовчуванням; клас .light на <html>
+ * вмикає світлу. ThemeContext ставить клас за системною темою або
+ * ручним вибором користувача.
+ */
+:root {
+  --c-base: 11 14 20;      /* #0B0E14 */
+  --c-panel: 19 23 34;     /* #131722 */
+  --c-panel2: 27 32 48;    /* #1B2030 */
+  --c-border: 36 41 56;    /* #242938 */
+  --c-ink: 228 231 235;    /* #E4E7EB */
+  --c-muted: 123 132 150;  /* #7B8496 */
+  --c-amber: 232 163 61;   /* #E8A33D */
+  --c-bull: 38 194 129;    /* #26C281 */
+  --c-bear: 239 83 80;     /* #EF5350 */
+  --c-deep: 11 14 20;      /* завжди темний — текст на янтарному */
+  color-scheme: dark;
+}
+
+html.light {
+  --c-base: 244 245 247;   /* #F4F5F7 */
+  --c-panel: 255 255 255;  /* #FFFFFF */
+  --c-panel2: 236 239 244; /* #ECEFF4 */
+  --c-border: 216 221 230; /* #D8DDE6 */
+  --c-ink: 26 32 44;       /* #1A202C */
+  --c-muted: 96 106 122;   /* #606A7A */
+  --c-amber: 205 138 32;   /* трохи темніший для контрасту на світлому */
+  --c-bull: 22 163 106;    /* #16A36A */
+  --c-bear: 220 56 53;     /* #DC3835 */
+  color-scheme: light;
+}
+
+body {
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden; /* без горизонтального прокручування (Завдання 17) */
+}
+
+/* Безпечні зони iPhone (Завдання 17): Dynamic Island зверху, home-індикатор знизу */
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+/* Відступ контенту під нижнім меню на мобільних */
+@media (max-width: 639px) {
+  .content-with-tabbar {
+    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+  }
+}
+
+.tabular {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Безшовна ticker-tape анімація — сигнатурний елемент шапки */
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-ticker {
+  animation: ticker-scroll 30s linear infinite;
+}

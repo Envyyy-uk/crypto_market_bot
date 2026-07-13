@@ -1,0 +1,22 @@
+# Backend
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/.env
+backend/.pytest_cache/
+backend/app.log
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/tsconfig.tsbuildinfo
+
+# OS
+.DS_Store
+
+# Local SQLite database
+backend/crypto_bot.db
+
+# Local dev tooling (machine-specific absolute paths)
+.claude/
