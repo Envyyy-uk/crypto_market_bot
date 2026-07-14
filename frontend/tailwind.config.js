@@ -19,7 +19,7 @@ export default {
         deep: "rgb(var(--c-deep) / <alpha-value>)",     // текст на янтарних кнопках (завжди темний)
       },
       fontFamily: {
-        display: ["Space Grotesk", "system-ui", "sans-serif"],
+        display: ["Poppins", "Space Grotesk", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
     },

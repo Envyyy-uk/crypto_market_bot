@@ -7,35 +7,39 @@
  * вмикає світлу. ThemeContext ставить клас за системною темою або
  * ручним вибором користувача.
  */
+/* Палітра в стилі slate/blue: темний нічний синій фон + блакитний акцент.
+   Токен --c-amber історично звався за янтарним кольором — тепер це
+   загальний акцент бренду (синій), класи text-amber/bg-amber лишились. */
 :root {
-  --c-base: 11 14 20;      /* #0B0E14 */
-  --c-panel: 19 23 34;     /* #131722 */
-  --c-panel2: 27 32 48;    /* #1B2030 */
-  --c-border: 36 41 56;    /* #242938 */
-  --c-ink: 228 231 235;    /* #E4E7EB */
-  --c-muted: 123 132 150;  /* #7B8496 */
-  --c-amber: 232 163 61;   /* #E8A33D */
-  --c-bull: 38 194 129;    /* #26C281 */
-  --c-bear: 239 83 80;     /* #EF5350 */
-  --c-deep: 11 14 20;      /* завжди темний — текст на янтарному */
+  --c-base: 10 15 26;      /* #0A0F1A — глибокий нічний синій */
+  --c-panel: 17 24 39;     /* #111827 — картки */
+  --c-panel2: 27 37 56;    /* #1B2538 — вкладені елементи / hover */
+  --c-border: 40 52 74;    /* #28344A */
+  --c-ink: 226 232 240;    /* #E2E8F0 (slate-200) */
+  --c-muted: 148 163 184;  /* #94A3B8 (slate-400) */
+  --c-amber: 59 130 246;   /* #3B82F6 (blue-500) — акцент бренду */
+  --c-bull: 34 197 94;     /* #22C55E */
+  --c-bear: 239 68 68;     /* #EF4444 */
+  --c-deep: 255 255 255;   /* текст на акцентних кнопках — білий на синьому */
   color-scheme: dark;
 }
 
 html.light {
-  --c-base: 244 245 247;   /* #F4F5F7 */
+  --c-base: 241 245 249;   /* #F1F5F9 (slate-100) */
   --c-panel: 255 255 255;  /* #FFFFFF */
-  --c-panel2: 236 239 244; /* #ECEFF4 */
-  --c-border: 216 221 230; /* #D8DDE6 */
-  --c-ink: 26 32 44;       /* #1A202C */
-  --c-muted: 96 106 122;   /* #606A7A */
-  --c-amber: 205 138 32;   /* трохи темніший для контрасту на світлому */
-  --c-bull: 22 163 106;    /* #16A36A */
-  --c-bear: 220 56 53;     /* #DC3835 */
+  --c-panel2: 233 239 247; /* #E9EFF7 */
+  --c-border: 213 221 233; /* #D5DDE9 */
+  --c-ink: 15 23 42;       /* #0F172A (slate-900) */
+  --c-muted: 100 116 139;  /* #64748B (slate-500) */
+  --c-amber: 37 99 235;    /* #2563EB (blue-600) — контрастніший на світлому */
+  --c-bull: 22 163 74;     /* #16A34A */
+  --c-bear: 220 38 38;     /* #DC2626 */
+  --c-deep: 255 255 255;
   color-scheme: light;
 }
 
 body {
-  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-family: "Poppins", "Space Grotesk", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden; /* без горизонтального прокручування (Завдання 17) */
   /* Дозволяємо лише вертикальний скрол і тапи — pinch-to-zoom вимкнено
@@ -60,6 +64,14 @@ body {
 .tabular {
   font-family: "JetBrains Mono", ui-monospace, monospace;
   font-variant-numeric: tabular-nums;
+}
+
+/* Градієнтний заголовок бренду — синій перелив, як у референсі */
+.text-gradient-blue {
+  background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 55%, #93c5fd 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 /* Безшовна ticker-tape анімація — сигнатурний елемент шапки */

@@ -50,7 +50,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 
       <header className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
         <div className="flex items-baseline gap-3">
-          <h1 className="font-display text-base font-semibold tracking-tight">
+          <h1 className="text-gradient-blue font-display text-base font-bold tracking-tight">
             Crypto Market Bot
           </h1>
           <p className="hidden text-xs text-muted sm:block">

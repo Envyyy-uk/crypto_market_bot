@@ -37,7 +37,7 @@ function apply(resolved: "dark" | "light") {
   document.documentElement.classList.toggle("light", resolved === "light");
   // Колір системної смуги статусу (iPhone) під тему
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute("content", resolved === "light" ? "#F4F5F7" : "#0B0E14");
+  if (meta) meta.setAttribute("content", resolved === "light" ? "#F1F5F9" : "#0A0F1A");
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
