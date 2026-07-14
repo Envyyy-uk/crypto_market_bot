@@ -81,6 +81,7 @@ export default function HomePage() {
               >
                 Full analysis of {selected.symbol.replace("USDT", "")}/USDT →
               </Link>
+              <CandleChart symbol={selectedSymbol} />
             </>
           ) : (
             <div className="rounded-2xl border border-border bg-panel p-8 text-sm text-muted">
@@ -97,10 +98,6 @@ export default function HomePage() {
           />
           <LatestSignals />
         </div>
-      </div>
-
-      <div className="mt-6">
-        <CandleChart symbol={selectedSymbol} />
       </div>
     </main>
   );
