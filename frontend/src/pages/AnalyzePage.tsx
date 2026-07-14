@@ -5,6 +5,7 @@ import type { AnalysisResult, RiskLevel, Timeframe, TrendType } from "../types";
 import CandleChart from "../components/CandleChart";
 import SignalBadge from "../components/SignalBadge";
 import BacktestPanel from "../components/BacktestPanel";
+import OrderBook from "../components/OrderBook";
 
 const ANALYSIS_TIMEFRAMES: Timeframe[] = ["15m", "1h", "4h"]; // МВП з ТЗ (Завдання 32)
 const REFRESH_MS = 60_000;
@@ -278,9 +279,10 @@ export default function AnalyzePage() {
             </div>
           )}
 
-          {/* Графік, синхронізований із таймфреймом аналізу */}
-          <div className="mt-6">
+          {/* Графік + жива глибина ринку (bid/ask) поруч, як у біржовому терміналі */}
+          <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1.6fr_1fr]">
             <CandleChart symbol={sym} interval={interval} onIntervalChange={setInterval} />
+            <OrderBook symbol={sym} />
           </div>
 
           {/* Індикатори */}

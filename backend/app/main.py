@@ -29,6 +29,7 @@ from app.middleware import RateLimitMiddleware, SecurityHeadersMiddleware
 from app.db import init_db
 from app.routers import alerts, analyze, auth, backtest, candles, favourites, health, indicators, markets, push, signals, ws
 from app.services.market_stream import market_stream
+from app.services.orderbook_stream import orderbook_manager
 from app.services.outcome_checker import outcome_checker
 from app.routers.push import send_push_to_user
 from app.services.alert_checker import alert_checker
@@ -60,6 +61,7 @@ async def lifespan(app: FastAPI):
     outcome_checker.stop()
     alert_checker.stop()
     signal_recorder.stop()
+    orderbook_manager.stop_all()
     market_stream.stop()
 
 

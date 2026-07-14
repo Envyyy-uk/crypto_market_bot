@@ -3,6 +3,7 @@ WebSocket-и для оновлення цін у реальному часі. З
 
     WS /ws/markets           — усі відстежувані пари одразу (для головної сторінки)
     WS /ws/market/{symbol}   — одна пара (для сторінки аналізу)
+    WS /ws/orderbook/{symbol} — глибина ринку (bid/ask) для однієї пари
 
 Приклад:
     /ws/market/BTCUSDT
@@ -19,6 +20,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from app.services.exchange import TRACKED_SYMBOLS
 from app.services.market_stream import market_stream
+from app.services.orderbook_stream import orderbook_manager
 
 logger = logging.getLogger("ws_router")
 router = APIRouter(tags=["websocket"])
@@ -61,3 +63,22 @@ async def ws_single_market(websocket: WebSocket, symbol: str):
         pass
     finally:
         market_stream.unsubscribe(websocket, symbol)
+
+
+@router.websocket("/ws/orderbook/{symbol}")
+async def ws_orderbook(websocket: WebSocket, symbol: str):
+    symbol = symbol.upper()
+    if symbol not in TRACKED_SYMBOLS:
+        await websocket.close(code=4404, reason=f"Unknown symbol: {symbol}")
+        return
+
+    await websocket.accept()
+    stream = orderbook_manager.subscribe(symbol, websocket)
+    await websocket.send_text(json.dumps({"type": "snapshot", "data": stream.snapshot()}))
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        pass
+    finally:
+        orderbook_manager.unsubscribe(symbol, websocket)

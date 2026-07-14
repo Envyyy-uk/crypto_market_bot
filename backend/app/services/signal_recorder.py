@@ -28,7 +28,7 @@ logger = logging.getLogger("signal_recorder")
 WATCHED_SYMBOLS = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
 WATCHED_TIMEFRAMES = ["15m", "1h", "4h"]
 
-RECORD_INTERVAL_SEC = 300  # перевірка кожні 5 хвилин
+RECORD_INTERVAL_SEC = 60  # перевірка щохвилини
 
 
 class SignalRecorder:
