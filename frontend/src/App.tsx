@@ -14,6 +14,7 @@ import AlertsPage from "./pages/AlertsPage";
 import MarketsPage from "./pages/MarketsPage";
 import BottomNav from "./components/BottomNav";
 import Footer from "./components/Footer";
+import ScrollToTopButton from "./components/ScrollToTopButton";
 import { LoginPage, RegisterPage } from "./pages/AuthPages";
 
 /** Спільна шапка: ticker tape + назва + навігація + статус з'єднання. */
@@ -84,6 +85,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 
       {children}
       <Footer />
+      <ScrollToTopButton />
       <BottomNav />
     </div>
   );

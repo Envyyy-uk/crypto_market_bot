@@ -30,10 +30,13 @@ export default function CandleChart({
   symbol,
   interval: controlledInterval,
   onIntervalChange,
+  preview = false,
 }: {
   symbol: string;
   interval?: Timeframe;
   onIntervalChange?: (tf: Timeframe) => void;
+  /** Компактний нередагований превʼю-режим для головної: без кнопок і взаємодії. */
+  preview?: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
@@ -64,11 +67,13 @@ export default function CandleChart({
         vertLines: { color: c.grid },
         horzLines: { color: c.grid },
       },
-      crosshair: { mode: CrosshairMode.Normal },
+      crosshair: { mode: preview ? CrosshairMode.Hidden : CrosshairMode.Normal },
       rightPriceScale: { borderColor: c.border },
       timeScale: { borderColor: c.border, timeVisible: true, secondsVisible: false },
       width: containerRef.current.clientWidth,
-      height: 420,
+      height: preview ? 260 : 420,
+      handleScroll: !preview,
+      handleScale: !preview,
     });
 
     const candleSeries = chart.addCandlestickSeries({
@@ -106,7 +111,7 @@ export default function CandleChart({
       candleSeriesRef.current = null;
       volumeSeriesRef.current = null;
     };
-  }, []);
+  }, [preview]);
 
   // Перефарбування при зміні теми (без перестворення графіка)
   useEffect(() => {
@@ -134,7 +139,8 @@ export default function CandleChart({
       setLoading(true);
       setError(null);
       try {
-        const candles = await getCandles(symbol, interval, 500);
+        // Preview: фіксовані ~48 годин на 1h-свічках, без вибору таймфрейму
+        const candles = await getCandles(symbol, preview ? "1h" : interval, preview ? 48 : 500);
         if (cancelled) return;
 
         candleSeriesRef.current?.setData(
@@ -172,37 +178,40 @@ export default function CandleChart({
     return () => {
       cancelled = true;
     };
-  }, [symbol, interval, theme]);
+  }, [symbol, interval, theme, preview]);
 
   return (
-    <div className="rounded-2xl border border-border bg-panel p-4 sm:p-5">
+    <div className="animate-fade-up rounded-xl border border-border bg-panel p-4">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="font-display text-sm font-medium text-ink">
-          {symbol.replace("USDT", "")}/USDT chart
+          {symbol.replace("USDT", "")}/USDT {preview ? "· 24h preview" : "chart"}
         </h2>
-        <div className="flex gap-1 rounded-lg border border-border bg-panel2 p-1">
-          {TIMEFRAMES.map((tf) => (
-            <button
-              key={tf}
-              onClick={() => setInterval(tf)}
-              className={`rounded-md px-2.5 py-1 font-mono text-xs transition-colors ${
-                tf === interval
-                  ? "bg-amber text-deep font-semibold"
-                  : "text-muted hover:text-ink"
-              }`}
-            >
-              {tf}
-            </button>
-          ))}
-        </div>
+        {!preview && (
+          <div className="flex gap-1 rounded-lg border border-border bg-panel2 p-1">
+            {TIMEFRAMES.map((tf) => (
+              <button
+                key={tf}
+                onClick={() => setInterval(tf)}
+                className={`rounded-md px-2.5 py-1 font-mono text-xs transition-colors ${
+                  tf === interval
+                    ? "bg-amber text-deep font-semibold"
+                    : "text-muted hover:text-ink"
+                }`}
+              >
+                {tf}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="relative">
         <div ref={containerRef} />
         {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-panel/60 text-sm text-muted">
-            Loading chart…
-          </div>
+          <div
+            className="skeleton absolute inset-0"
+            style={{ height: preview ? 260 : 420 }}
+          />
         )}
         {error && !loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-panel/80 text-sm text-bear">

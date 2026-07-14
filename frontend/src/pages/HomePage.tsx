@@ -5,7 +5,6 @@ import { getSignals, type SignalRecord } from "../api";
 import PriceCard from "../components/PriceCard";
 import MarketList from "../components/MarketList";
 import CandleChart from "../components/CandleChart";
-import OrderBook from "../components/OrderBook";
 import SignalBadge from "../components/SignalBadge";
 import type { SignalType } from "../types";
 
@@ -24,8 +23,8 @@ function LatestSignals() {
   if (records.length === 0) return null;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-panel">
-      <div className="flex items-center justify-between border-b border-border px-5 py-3">
+    <div className="animate-fade-up overflow-hidden rounded-xl border border-border bg-panel">
+      <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
         <h2 className="font-display text-sm font-medium text-ink">Latest signals</h2>
         <Link to="/signals" className="text-xs text-muted transition-colors hover:text-ink">
           View all →
@@ -36,7 +35,7 @@ function LatestSignals() {
           <li key={r.id}>
             <Link
               to={`/analyze/${r.symbol}`}
-              className="flex items-center justify-between px-5 py-2.5 transition-colors hover:bg-panel2"
+              className="flex items-center justify-between px-4 py-2 transition-colors hover:bg-panel2"
             >
               <span className="flex items-center gap-3">
                 <span className="font-mono text-sm text-ink">
@@ -71,29 +70,47 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Верхня панель: пара + ціна + 24h-статистика + кнопка аналізу, як у терміналі */}
+      {/* Hero: ціна + sparkline + 24h-статистика; поки даних немає — skeleton */}
       {selected ? (
-        <div className="mb-3 flex flex-wrap items-center gap-3">
-          <div className="min-w-0 flex-1">
-            <PriceCard ticker={selected} />
-          </div>
-          <Link
-            to={`/analyze/${selected.symbol}`}
-            className="shrink-0 rounded-xl border border-amber/40 bg-amber/10 px-4 py-3 text-sm font-medium text-amber transition-colors hover:bg-amber/20"
-          >
-            Full analysis →
-          </Link>
-        </div>
+        <PriceCard ticker={selected} />
       ) : (
-        <div className="mb-3 rounded-xl border border-border bg-panel p-6 text-sm text-muted">
-          Loading price data…
-        </div>
+        <div className="skeleton h-[88px] w-full rounded-xl" />
       )}
 
-      {/* Термінальна сітка: графік | ордербук | ринки+сигнали */}
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,2.2fr)_minmax(230px,0.9fr)_minmax(280px,1.1fr)]">
-        <CandleChart symbol={selectedSymbol} />
-        <OrderBook symbol={selectedSymbol} />
+      {/* Швидкі дії */}
+      <div className="mt-3 grid grid-cols-3 gap-3">
+        <Link
+          to={`/analyze/${selectedSymbol}`}
+          className="animate-fade-up rounded-xl border border-amber/40 bg-amber/10 px-3 py-2.5 text-center text-sm font-medium text-amber transition-colors hover:bg-amber/20"
+        >
+          Full analysis
+        </Link>
+        <Link
+          to="/signals"
+          className="animate-fade-up rounded-xl border border-border bg-panel px-3 py-2.5 text-center text-sm font-medium text-ink transition-colors hover:bg-panel2"
+        >
+          Signals
+        </Link>
+        <Link
+          to="/alerts"
+          className="animate-fade-up rounded-xl border border-border bg-panel px-3 py-2.5 text-center text-sm font-medium text-ink transition-colors hover:bg-panel2"
+        >
+          Alerts
+        </Link>
+      </div>
+
+      {/* Сітка: превʼю графіка (клік -> повний аналіз) | ринки + сигнали */}
+      <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.6fr)_minmax(300px,1fr)]">
+        <Link
+          to={`/analyze/${selectedSymbol}`}
+          aria-label={`Open full ${selectedSymbol} chart and analysis`}
+          className="group relative block transition-opacity hover:opacity-90"
+        >
+          <CandleChart symbol={selectedSymbol} preview />
+          <span className="pointer-events-none absolute bottom-3 right-3 rounded-md border border-border bg-panel2/90 px-2 py-1 text-xs text-muted opacity-0 transition-opacity group-hover:opacity-100">
+            Open full chart →
+          </span>
+        </Link>
         <div className="space-y-3">
           <MarketList
             tickers={tickers}
