@@ -41,6 +41,14 @@ export interface AnalysisResult {
   riskLevel: RiskLevel;
   riskWarning: string | null;
   atrPct: number;
+  tradeLevels: {
+    direction: "long" | "short";
+    entry: number;
+    stopLoss: number;
+    takeProfit: number;
+    riskRewardRatio: number;
+    note: string;
+  } | null;
   indicators: {
     rsi: number;
     rsiStatus: string;

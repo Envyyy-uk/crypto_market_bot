@@ -194,6 +194,62 @@ export default function AnalyzePage() {
             </p>
           </div>
 
+          {/* Пропоновані рівні входу/TP/SL — евристика, не гарантія */}
+          {analysis.tradeLevels && (
+            <div className="mt-6 rounded-2xl border border-border bg-panel p-6">
+              <div className="flex items-center justify-between">
+                <p className="text-xs uppercase tracking-wider text-muted">
+                  Suggested trade levels
+                </p>
+                <span
+                  className={`rounded-md border px-2 py-0.5 text-xs font-medium ${
+                    analysis.tradeLevels.direction === "long"
+                      ? "border-bull/20 bg-bull/10 text-bull"
+                      : "border-bear/20 bg-bear/10 text-bear"
+                  }`}
+                >
+                  {analysis.tradeLevels.direction === "long" ? "Long" : "Short"}
+                </span>
+              </div>
+
+              <div className="mt-4 grid grid-cols-3 gap-3 text-center">
+                <div>
+                  <p className="text-xs text-muted">Entry</p>
+                  <p className="tabular mt-1 text-sm font-semibold text-ink">
+                    ${fmt(analysis.tradeLevels.entry, analysis.tradeLevels.entry < 1 ? 6 : 2)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted">Stop loss</p>
+                  <p className="tabular mt-1 text-sm font-semibold text-bear">
+                    $
+                    {fmt(
+                      analysis.tradeLevels.stopLoss,
+                      analysis.tradeLevels.stopLoss < 1 ? 6 : 2,
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted">Take profit</p>
+                  <p className="tabular mt-1 text-sm font-semibold text-bull">
+                    $
+                    {fmt(
+                      analysis.tradeLevels.takeProfit,
+                      analysis.tradeLevels.takeProfit < 1 ? 6 : 2,
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              <p className="mt-4 text-center text-xs text-muted">
+                Risk/reward ≈ 1:{fmt(analysis.tradeLevels.riskRewardRatio, 1)}
+              </p>
+              <p className="mt-3 border-t border-border pt-3 text-xs text-muted">
+                {analysis.tradeLevels.note}
+              </p>
+            </div>
+          )}
+
           {/* Графік, синхронізований із таймфреймом аналізу */}
           <div className="mt-6">
             <CandleChart symbol={sym} interval={interval} onIntervalChange={setInterval} />

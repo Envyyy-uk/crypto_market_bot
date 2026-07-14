@@ -27,6 +27,7 @@ from fastapi import APIRouter, HTTPException, Query
 from app.analysis.indicators import compute_indicators
 from app.analysis.risk import assess_risk
 from app.analysis.signals import generate_signal
+from app.analysis.trade_levels import compute_trade_levels
 from app.analysis.trend import detect_trend
 from app.services.candles import SUPPORTED_INTERVALS, fetch_candles
 from app.services.exchange import TRACKED_SYMBOLS
@@ -71,6 +72,14 @@ async def analyze(
     last_change_pct = (last.close / last.open - 1) * 100 if last.open > 0 else 0.0
     risk = assess_risk(indicators["price"], indicators["atr"], last_change_pct)
 
+    trade_levels = compute_trade_levels(
+        signal["signal"],
+        indicators["price"],
+        indicators["atr"],
+        signal["support"],
+        signal["resistance"],
+    )
+
     return {
         "symbol": symbol,
         "interval": interval,
@@ -85,6 +94,7 @@ async def analyze(
         "riskLevel": risk["riskLevel"],
         "riskWarning": risk["warning"],
         "atrPct": risk["atrPct"],
+        "tradeLevels": trade_levels,
         "indicators": indicators,
         "updatedAt": int(time.time() * 1000),
     }
