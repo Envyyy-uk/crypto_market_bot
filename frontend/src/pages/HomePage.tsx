@@ -5,6 +5,7 @@ import { getSignals, type SignalRecord } from "../api";
 import PriceCard from "../components/PriceCard";
 import MarketList from "../components/MarketList";
 import CandleChart from "../components/CandleChart";
+import OrderBook from "../components/OrderBook";
 import SignalBadge from "../components/SignalBadge";
 import type { SignalType } from "../types";
 
@@ -63,34 +64,37 @@ export default function HomePage() {
   const selected = tickers.find((t) => t.symbol === selectedSymbol);
 
   return (
-    <main className="mx-auto max-w-5xl px-4 pb-16 sm:px-6">
+    <main className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
       {status === "offline" && (
         <div className="mb-6 rounded-xl border border-bear/30 bg-bear/10 px-4 py-3 text-sm text-bear">
           Market data is temporarily unavailable. Reconnecting…
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <div className="space-y-6">
-          {selected ? (
-            <>
-              <PriceCard ticker={selected} />
-              <Link
-                to={`/analyze/${selected.symbol}`}
-                className="block rounded-xl border border-amber/40 bg-amber/10 px-4 py-3 text-center text-sm font-medium text-amber transition-colors hover:bg-amber/20"
-              >
-                Full analysis of {selected.symbol.replace("USDT", "")}/USDT →
-              </Link>
-              <CandleChart symbol={selectedSymbol} />
-            </>
-          ) : (
-            <div className="rounded-2xl border border-border bg-panel p-8 text-sm text-muted">
-              Loading price data…
-            </div>
-          )}
+      {/* Верхня панель: пара + ціна + 24h-статистика + кнопка аналізу, як у терміналі */}
+      {selected ? (
+        <div className="mb-3 flex flex-wrap items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <PriceCard ticker={selected} />
+          </div>
+          <Link
+            to={`/analyze/${selected.symbol}`}
+            className="shrink-0 rounded-xl border border-amber/40 bg-amber/10 px-4 py-3 text-sm font-medium text-amber transition-colors hover:bg-amber/20"
+          >
+            Full analysis →
+          </Link>
         </div>
+      ) : (
+        <div className="mb-3 rounded-xl border border-border bg-panel p-6 text-sm text-muted">
+          Loading price data…
+        </div>
+      )}
 
-        <div className="space-y-6">
+      {/* Термінальна сітка: графік | ордербук | ринки+сигнали */}
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,2.2fr)_minmax(230px,0.9fr)_minmax(280px,1.1fr)]">
+        <CandleChart symbol={selectedSymbol} />
+        <OrderBook symbol={selectedSymbol} />
+        <div className="space-y-3">
           <MarketList
             tickers={tickers}
             selectedSymbol={selectedSymbol}

@@ -35,8 +35,8 @@ export default function MarketList({
   }, [tickers, query, onlyFavourites, favourites]);
 
   return (
-    <div className="flex max-h-[34rem] flex-col overflow-hidden rounded-2xl border border-border bg-panel">
-      <div className="border-b border-border px-5 py-3">
+    <div className="flex max-h-[40rem] flex-col overflow-hidden rounded-xl border border-border bg-panel">
+      <div className="border-b border-border px-4 py-2.5">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-sm font-medium text-ink">Markets</h2>
           <div className="flex items-center gap-2">
@@ -57,8 +57,19 @@ export default function MarketList({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search coin, e.g. PEPE"
-          className="mt-2 w-full rounded-lg border border-border bg-panel2 px-3 py-1.5 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-amber"
+          className="mt-2 w-full rounded-lg border border-border bg-panel2 px-3 py-1 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-amber"
         />
+      </div>
+
+      <div className="grid grid-cols-[auto_1fr] border-b border-border">
+        <span className="pl-3 pr-1 text-[10px]"> </span>
+        <div className="flex items-center justify-between py-1 pl-1 pr-4 text-[10px] uppercase tracking-wider text-muted">
+          <span>Pair</span>
+          <span className="flex gap-4">
+            <span>Price</span>
+            <span className="w-16 text-right">24h %</span>
+          </span>
+        </div>
       </div>
 
       <ul className="overflow-y-auto">
@@ -74,7 +85,7 @@ export default function MarketList({
                     ? `Remove ${t.symbol} from favourites`
                     : `Add ${t.symbol} to favourites`
                 }
-                className={`pl-3 pr-1 text-sm transition-colors ${
+                className={`pl-3 pr-1 text-xs transition-colors ${
                   isFavourite(t.symbol) ? "text-amber" : "text-border hover:text-muted"
                 }`}
               >
@@ -82,18 +93,18 @@ export default function MarketList({
               </button>
               <button
                 onClick={() => onSelect(t.symbol)}
-                className={`flex w-full items-center justify-between py-2.5 pl-1 pr-5 text-left transition-colors hover:bg-panel2 ${
+                className={`flex w-full items-center justify-between py-1 pl-1 pr-4 text-left transition-colors hover:bg-panel2 ${
                   active ? "bg-panel2" : ""
                 }`}
               >
-                <span className="font-mono text-sm text-ink">
+                <span className="font-mono text-xs text-ink">
                   {t.symbol.replace("USDT", "")}
                   <span className="text-muted">/USDT</span>
                 </span>
                 <span className="flex items-center gap-4">
-                  <span className="tabular text-sm text-ink">${formatPrice(t.price)}</span>
+                  <span className="tabular text-xs text-ink">${formatPrice(t.price)}</span>
                   <span
-                    className={`tabular w-16 text-right text-sm font-medium ${
+                    className={`tabular w-16 text-right text-xs font-medium ${
                       positive ? "text-bull" : "text-bear"
                     }`}
                   >

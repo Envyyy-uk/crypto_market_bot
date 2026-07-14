@@ -102,7 +102,7 @@ export default function AnalyzePage() {
   const trend = analysis ? TREND_LABEL[analysis.trend] : null;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-16 sm:px-6">
+    <div className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
       <div className="flex items-center justify-between py-4">
         <Link to="/" className="text-sm text-muted transition-colors hover:text-ink">
           ← Back to markets

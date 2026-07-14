@@ -57,7 +57,7 @@ export default function SignalsPage() {
   }, [load]);
 
   return (
-    <main className="mx-auto max-w-5xl px-4 pb-16 sm:px-6">
+    <main className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
       <div className="flex items-center justify-between py-4">
         <h2 className="font-display text-base font-semibold text-ink">Signal history</h2>
         <Link to="/" className="text-sm text-muted transition-colors hover:text-ink">

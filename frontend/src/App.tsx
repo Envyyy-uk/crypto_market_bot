@@ -13,6 +13,7 @@ import ProfilePage from "./pages/ProfilePage";
 import AlertsPage from "./pages/AlertsPage";
 import MarketsPage from "./pages/MarketsPage";
 import BottomNav from "./components/BottomNav";
+import Footer from "./components/Footer";
 import { LoginPage, RegisterPage } from "./pages/AuthPages";
 
 /** Спільна шапка: ticker tape + назва + навігація + статус з'єднання. */
@@ -20,7 +21,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   const { tickers, status } = useMarkets();
   const { user } = useAuth();
 
-  const majorSymbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "SOLUSDT", "ADAUSDT", "DOGEUSDT", "TONUSDT"];
+  const majorSymbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "SOLUSDT", "ADAUSDT", "DOGEUSDT", "TRXUSDT"];
   const tape = majorSymbols
     .map((s) => tickers.find((t) => t.symbol === s))
     .filter((t): t is NonNullable<typeof t> => Boolean(t));
@@ -46,12 +47,14 @@ function Shell({ children }: { children: React.ReactNode }) {
         )}
       </div>
 
-      <header className="mx-auto flex max-w-5xl items-center justify-between px-4 py-6 sm:px-6">
-        <div>
-          <h1 className="font-display text-lg font-semibold tracking-tight">
+      <header className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+        <div className="flex items-baseline gap-3">
+          <h1 className="font-display text-base font-semibold tracking-tight">
             Crypto Market Bot
           </h1>
-          <p className="text-xs text-muted">Analytical signals — not financial advice.</p>
+          <p className="hidden text-xs text-muted sm:block">
+            Analytical signals — not financial advice.
+          </p>
         </div>
         <div className="flex items-center gap-4">
           <nav className="hidden gap-3 text-sm sm:flex">
@@ -80,6 +83,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       </header>
 
       {children}
+      <Footer />
       <BottomNav />
     </div>
   );
