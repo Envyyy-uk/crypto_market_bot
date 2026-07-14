@@ -23,6 +23,62 @@ TRADE_LEVELS_NOTE = (
     "not a guaranteed price or financial advice. Always confirm before trading."
 )
 
+# --- Плече для ф'ючерсів/перпетуалів ---
+# Консервативний орієнтир maintenance margin — реальний % залежить від біржі й
+# рівня плеча (у Bybit/Binance він росте зі збільшенням позиції), тому свідомо
+# беремо з запасом, а не мінімальне значення для великих пар типу BTC.
+MAINTENANCE_MARGIN_RATE = 0.01
+# Ліквідація має бути ЗАДОВГО за стоп-лоссом, а не впритул до нього — інакше
+# при різкому русі ціни (проковзування, гепи) біржа ліквідує позицію раніше,
+# ніж встигне спрацювати стоп, і сам стоп стає марним.
+LIQUIDATION_SAFETY_FACTOR = 1.3
+MAX_LEVERAGE_CEILING = 20.0
+MIN_LEVERAGE = 1.0
+
+LEVERAGE_NOTE = (
+    "Approximate — actual liquidation price depends on the exchange's maintenance "
+    "margin tiers, fees, and funding rate. Assumes isolated margin and keeps a "
+    "safety buffer so the stop-loss triggers before liquidation, not at the same time."
+)
+
+
+def _liquidation_price(entry: float, leverage: float, direction: str) -> float:
+    if direction == "long":
+        return entry * (1 - 1 / leverage + MAINTENANCE_MARGIN_RATE)
+    return entry * (1 + 1 / leverage - MAINTENANCE_MARGIN_RATE)
+
+
+def compute_max_safe_leverage(entry: float, stop_loss: float, direction: str) -> dict | None:
+    """
+    Максимальне плече, за якого стоп-лосс (з запасом) спрацює РАНІШЕ за
+    примусову ліквідацію біржею. Це не "рекомендоване" плече в сенсі
+    прибутковості — лише стеля, вище якої сам стоп-лосс втрачає сенс.
+    """
+    stop_distance = abs(entry - stop_loss)
+    if stop_distance <= 0 or entry <= 0:
+        return None
+
+    # 1/L >= stop_distance*SAFETY/entry + MMR  =>  L <= 1 / (...)
+    required = stop_distance * LIQUIDATION_SAFETY_FACTOR / entry + MAINTENANCE_MARGIN_RATE
+    max_leverage = MAX_LEVERAGE_CEILING if required <= 0 else min(MAX_LEVERAGE_CEILING, 1 / required)
+
+    warning = None
+    if max_leverage < MIN_LEVERAGE:
+        max_leverage = MIN_LEVERAGE
+        warning = (
+            "Volatility is too high relative to this stop-loss for safe leveraged "
+            "trading — even 1x risks liquidation before the stop triggers. "
+            "Consider spot only, or a wider stop."
+        )
+
+    max_leverage = round(max_leverage, 1)
+    return {
+        "maxSafeLeverage": max_leverage,
+        "liquidationPrice": round(_liquidation_price(entry, max_leverage, direction), 8),
+        "warning": warning,
+        "note": LEVERAGE_NOTE,
+    }
+
 
 def compute_trade_levels(
     signal: str,
@@ -80,12 +136,14 @@ def compute_trade_levels(
 
     reward_distance = abs(take_profit - price)
     risk_reward = round(reward_distance / stop_distance, 2)
+    direction = "long" if is_long else "short"
 
     return {
-        "direction": "long" if is_long else "short",
+        "direction": direction,
         "entry": round(price, 8),
         "stopLoss": round(stop_loss, 8),
         "takeProfit": round(take_profit, 8),
         "riskRewardRatio": risk_reward,
         "note": TRADE_LEVELS_NOTE,
+        "leverage": compute_max_safe_leverage(price, stop_loss, direction),
     }

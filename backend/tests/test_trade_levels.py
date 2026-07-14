@@ -2,7 +2,7 @@
 Тести пропонованих рівнів входу/TP/SL (app/analysis/trade_levels.py).
 """
 
-from app.analysis.trade_levels import compute_trade_levels
+from app.analysis.trade_levels import compute_max_safe_leverage, compute_trade_levels
 
 
 class TestNeutralAndInvalid:
@@ -73,3 +73,40 @@ class TestNote:
     def test_note_present_and_not_a_promise(self):
         levels = compute_trade_levels("Buy", 100, 2, support=None, resistance=None)
         assert "not a guaranteed" in levels["note"]
+
+
+class TestMaxSafeLeverage:
+    def test_long_liquidation_is_beyond_stop_loss(self):
+        # ліквідація має бути ДАЛІ за стоп (нижче), інакше стоп ніколи не встигне спрацювати
+        result = compute_max_safe_leverage(entry=100, stop_loss=90, direction="long")
+        assert result["liquidationPrice"] < 90
+
+    def test_short_liquidation_is_beyond_stop_loss(self):
+        result = compute_max_safe_leverage(entry=100, stop_loss=110, direction="short")
+        assert result["liquidationPrice"] > 110
+
+    def test_leverage_within_bounds(self):
+        result = compute_max_safe_leverage(entry=100, stop_loss=90, direction="long")
+        assert 1.0 <= result["maxSafeLeverage"] <= 20.0
+        assert result["warning"] is None
+
+    def test_tight_stop_hits_ceiling_not_unbounded(self):
+        # дуже вузький стоп -> формула дала б величезне плече, але воно обмежене стелею
+        result = compute_max_safe_leverage(entry=100, stop_loss=99.9, direction="long")
+        assert result["maxSafeLeverage"] == 20.0
+
+    def test_extremely_wide_stop_floors_to_min_with_warning(self):
+        # стоп майже дорівнює ціні входу -> навіть 1x небезпечний, має бути попередження
+        result = compute_max_safe_leverage(entry=100, stop_loss=1, direction="long")
+        assert result["maxSafeLeverage"] == 1.0
+        assert result["warning"] is not None
+
+    def test_zero_distance_gives_none(self):
+        assert compute_max_safe_leverage(entry=100, stop_loss=100, direction="long") is None
+
+
+class TestTradeLevelsIncludesLeverage:
+    def test_leverage_field_present_for_directional_signal(self):
+        levels = compute_trade_levels("Buy", 100, 2, support=None, resistance=None)
+        assert levels["leverage"] is not None
+        assert levels["leverage"]["maxSafeLeverage"] >= 1.0

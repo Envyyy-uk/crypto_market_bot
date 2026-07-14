@@ -48,6 +48,12 @@ export interface AnalysisResult {
     takeProfit: number;
     riskRewardRatio: number;
     note: string;
+    leverage: {
+      maxSafeLeverage: number;
+      liquidationPrice: number;
+      warning: string | null;
+      note: string;
+    } | null;
   } | null;
   indicators: {
     rsi: number;
