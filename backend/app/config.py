@@ -31,6 +31,11 @@ class Settings:
     # WebSocket endpoint біржі, spot-канал (знадобиться в Завданні 4)
     bybit_ws_url: str = os.getenv("BYBIT_WS_URL", "wss://stream.bybit.com/v5/public/spot")
 
+    # Джерело історичних свічок (Завдання 5). Bybit REST блокує деякі хмарні IP
+    # (403 на /v5/market/kline з Render) — Binance-дані не блоковані, той самий
+    # набір пар/формат використовується лише для історії, живі ціни й далі з Bybit WS.
+    binance_rest_url: str = os.getenv("BINANCE_REST_URL", "https://api.binance.com")
+
     # База даних (Завдання 19).
     # Локально за замовчуванням SQLite — працює без установки.
     # На проді задайте в .env: postgresql+asyncpg://user:password@host:5432/crypto_bot
