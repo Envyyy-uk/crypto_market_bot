@@ -25,6 +25,9 @@ router = APIRouter(tags=["health"])
 _started = time.time()
 
 
+# HEAD потрібен аптайм-моніторам (UptimeRobot шле HEAD за замовчуванням) —
+# без нього вони отримують 405 і вважають сервіс "впавшим".
+@router.head("/health")
 @router.get("/health")
 def health_check():
     ws_clients = sum(len(subs) for subs in market_stream.subscribers.values())
