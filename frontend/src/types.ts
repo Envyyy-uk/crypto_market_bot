@@ -51,6 +51,8 @@ export interface AnalysisResult {
     leverage: {
       maxSafeLeverage: number;
       liquidationPrice: number;
+      maintenanceMarginRate: number;
+      maxLeverageCeiling: number;
       warning: string | null;
       note: string;
     } | null;

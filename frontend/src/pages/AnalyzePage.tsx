@@ -6,6 +6,7 @@ import CandleChart from "../components/CandleChart";
 import SignalBadge from "../components/SignalBadge";
 import BacktestPanel from "../components/BacktestPanel";
 import OrderBook from "../components/OrderBook";
+import TradeLevelsPanel from "../components/TradeLevelsPanel";
 
 const ANALYSIS_TIMEFRAMES: Timeframe[] = ["15m", "1h", "4h"]; // МВП з ТЗ (Завдання 32)
 const REFRESH_MS = 60_000;
@@ -195,89 +196,8 @@ export default function AnalyzePage() {
             </p>
           </div>
 
-          {/* Пропоновані рівні входу/TP/SL — евристика, не гарантія */}
-          {analysis.tradeLevels && (
-            <div className="mt-6 rounded-2xl border border-border bg-panel p-6">
-              <div className="flex items-center justify-between">
-                <p className="text-xs uppercase tracking-wider text-muted">
-                  Suggested trade levels
-                </p>
-                <span
-                  className={`rounded-md border px-2 py-0.5 text-xs font-medium ${
-                    analysis.tradeLevels.direction === "long"
-                      ? "border-bull/20 bg-bull/10 text-bull"
-                      : "border-bear/20 bg-bear/10 text-bear"
-                  }`}
-                >
-                  {analysis.tradeLevels.direction === "long" ? "Long" : "Short"}
-                </span>
-              </div>
-
-              <div className="mt-4 grid grid-cols-3 gap-3 text-center">
-                <div>
-                  <p className="text-xs text-muted">Entry</p>
-                  <p className="tabular mt-1 text-sm font-semibold text-ink">
-                    ${fmt(analysis.tradeLevels.entry, analysis.tradeLevels.entry < 1 ? 6 : 2)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted">Stop loss</p>
-                  <p className="tabular mt-1 text-sm font-semibold text-bear">
-                    $
-                    {fmt(
-                      analysis.tradeLevels.stopLoss,
-                      analysis.tradeLevels.stopLoss < 1 ? 6 : 2,
-                    )}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted">Take profit</p>
-                  <p className="tabular mt-1 text-sm font-semibold text-bull">
-                    $
-                    {fmt(
-                      analysis.tradeLevels.takeProfit,
-                      analysis.tradeLevels.takeProfit < 1 ? 6 : 2,
-                    )}
-                  </p>
-                </div>
-              </div>
-
-              <p className="mt-4 text-center text-xs text-muted">
-                Risk/reward ≈ 1:{fmt(analysis.tradeLevels.riskRewardRatio, 1)}
-              </p>
-
-              {analysis.tradeLevels.leverage && (
-                <div className="mt-4 rounded-xl border border-amber/30 bg-amber/5 p-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs uppercase tracking-wider text-muted">
-                      Max safe leverage (futures)
-                    </p>
-                    <span className="tabular text-sm font-semibold text-amber">
-                      {fmt(analysis.tradeLevels.leverage.maxSafeLeverage, 1)}x
-                    </span>
-                  </div>
-                  <p className="mt-2 text-xs text-muted">
-                    Liquidation ≈ $
-                    {fmt(
-                      analysis.tradeLevels.leverage.liquidationPrice,
-                      analysis.tradeLevels.leverage.liquidationPrice < 1 ? 6 : 2,
-                    )}{" "}
-                    at this leverage — beyond your stop-loss, not at it.
-                  </p>
-                  {analysis.tradeLevels.leverage.warning && (
-                    <p className="mt-2 rounded-lg border border-bear/30 bg-bear/10 px-3 py-2 text-xs text-bear">
-                      {analysis.tradeLevels.leverage.warning}
-                    </p>
-                  )}
-                  <p className="mt-2 text-xs text-muted">{analysis.tradeLevels.leverage.note}</p>
-                </div>
-              )}
-
-              <p className="mt-3 border-t border-border pt-3 text-xs text-muted">
-                {analysis.tradeLevels.note}
-              </p>
-            </div>
-          )}
+          {/* Пропоновані рівні входу/TP/SL: Spot/Futures + повзунок плеча */}
+          {analysis.tradeLevels && <TradeLevelsPanel levels={analysis.tradeLevels} />}
 
           {/* Графік + жива глибина ринку (bid/ask) поруч, як у біржовому терміналі */}
           <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1.6fr_1fr]">

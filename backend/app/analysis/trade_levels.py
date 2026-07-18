@@ -75,6 +75,10 @@ def compute_max_safe_leverage(entry: float, stop_loss: float, direction: str) ->
     return {
         "maxSafeLeverage": max_leverage,
         "liquidationPrice": round(_liquidation_price(entry, max_leverage, direction), 8),
+        # Щоб фронтенд міг перераховувати ліквідацію для ДОВІЛЬНОГО плеча
+        # (повзунок) тією самою формулою, а не дублювати константу.
+        "maintenanceMarginRate": MAINTENANCE_MARGIN_RATE,
+        "maxLeverageCeiling": MAX_LEVERAGE_CEILING,
         "warning": warning,
         "note": LEVERAGE_NOTE,
     }
