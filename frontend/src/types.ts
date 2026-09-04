@@ -8,7 +8,9 @@ export interface MarketTicker {
   volume24h: number;
 }
 
-export type ConnectionStatus = "connecting" | "online" | "offline";
+// "stale" — WebSocket до бекенду живий, але бекенд втратив канал до біржі:
+// ціни на екрані застигли, і користувач має це бачити.
+export type ConnectionStatus = "connecting" | "online" | "stale" | "offline";
 
 // Відповідає Candle з backend/app/models/schemas.py
 export interface Candle {

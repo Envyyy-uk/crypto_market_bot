@@ -11,6 +11,7 @@ WebSocket-и для оновлення цін у реальному часі. З
 Протокол повідомлень від сервера:
     {"type": "snapshot", "data": [...]}   — початковий стан одразу після підключення
     {"type": "update", "data": {...}}     — оновлення однієї пари в реальному часі
+    {"type": "exchange", "connected": bool} — чи живий канал бекенд↔біржа
 """
 
 import json
@@ -32,6 +33,9 @@ async def ws_all_markets(websocket: WebSocket):
     market_stream.subscribe(websocket, "*")
     await websocket.send_text(
         json.dumps({"type": "snapshot", "data": market_stream.snapshot()})
+    )
+    await websocket.send_text(
+        json.dumps({"type": "exchange", "connected": market_stream.connected})
     )
     try:
         while True:
@@ -55,6 +59,9 @@ async def ws_single_market(websocket: WebSocket, symbol: str):
     market_stream.subscribe(websocket, symbol)
     await websocket.send_text(
         json.dumps({"type": "snapshot", "data": market_stream.snapshot(symbol)})
+    )
+    await websocket.send_text(
+        json.dumps({"type": "exchange", "connected": market_stream.connected})
     )
     try:
         while True:

@@ -54,14 +54,14 @@ class MarketStream:
             except asyncio.CancelledError:
                 raise
             except Exception as exc:
-                self.connected = False
+                await self._set_connected(False)
                 logger.warning("Bybit WS disconnected (%s); reconnecting in %ss", exc, delay)
             await asyncio.sleep(delay)
             delay = min(delay * 2, RECONNECT_MAX_DELAY)
 
     async def _connect_once(self) -> None:
         async with websockets.connect(settings.bybit_ws_url, ping_interval=20) as ws:
-            self.connected = True
+            await self._set_connected(True)
             args = [f"tickers.{s}" for s in self.symbols]
             # Bybit v5 public WS обмежує максимум 10 topic-ів на один subscribe (args size >10)
             for i in range(0, len(args), BYBIT_SUBSCRIBE_BATCH_SIZE):
@@ -95,6 +95,27 @@ class MarketStream:
         payload = ticker.model_dump()
         self.cache[symbol] = payload
         await self._broadcast(symbol, payload)
+
+    async def _set_connected(self, value: bool) -> None:
+        """
+        Стан "чи живий канал до біржі". Клієнти мають бачити різницю між
+        "мій WebSocket до бекенду працює" і "бекенд має свіжі ціни з біржі" —
+        інакше при падінні біржі в шапці світиться зелене "Connected", хоча
+        цін немає.
+        """
+        if self.connected == value:
+            return
+        self.connected = value
+        await self._broadcast_status()
+
+    async def _broadcast_status(self) -> None:
+        message = json.dumps({"type": "exchange", "connected": self.connected})
+        for key, sockets in list(self.subscribers.items()):
+            for ws in list(sockets):
+                try:
+                    await ws.send_text(message)
+                except Exception:
+                    sockets.discard(ws)
 
     async def _broadcast(self, symbol: str, payload: dict) -> None:
         message = json.dumps({"type": "update", "data": payload})

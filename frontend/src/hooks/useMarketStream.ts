@@ -45,6 +45,8 @@ export function useMarketStream() {
 
       socket.onopen = () => {
         retryDelayRef.current = MIN_RETRY_DELAY;
+        // Стартуємо з "online"; якщо канал до біржі лежить, бекенд одразу
+        // після snapshot надішле {"type":"exchange"} і статус стане "stale".
         setStatus("online");
       };
 
@@ -56,6 +58,8 @@ export function useMarketStream() {
             setTickers(Object.fromEntries(valid.map((t) => [t.symbol, t])));
           } else if (msg.type === "update" && isValidTicker(msg.data)) {
             setTickers((prev) => ({ ...prev, [msg.data.symbol]: msg.data }));
+          } else if (msg.type === "exchange" && typeof msg.connected === "boolean") {
+            setStatus(msg.connected ? "online" : "stale");
           }
           // Некоректні/невідомі повідомлення тихо ігноруємо.
         } catch {

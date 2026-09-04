@@ -18,8 +18,10 @@ _DEFAULT_SQLITE_PATH = Path(__file__).resolve().parent.parent / "crypto_bot.db"
 
 class Settings:
     # Дозволені джерела для CORS (frontend dev-сервер за замовчуванням)
+    # 127.0.0.1 і localhost для браузера — різні origin, тому в дефолті обидва.
     cors_origins: list[str] = os.getenv(
-        "CORS_ORIGINS", "http://localhost:5173,http://localhost:3000"
+        "CORS_ORIGINS",
+        "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000",
     ).split(",")
 
     # Біржа, з якою працюємо в першу чергу
