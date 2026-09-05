@@ -41,6 +41,10 @@
    sudo bash /tmp/cmb/deploy/setup.sh bot.example.duckdns.org
    ```
 
+   Скрипт клонує гілку за замовчуванням. Якщо потрібне розгортання з іншої
+   гілки — третім аргументом:
+   `sudo bash /tmp/cmb/deploy/setup.sh bot.example.duckdns.org "" назва-гілки`
+
 Скрипт ставить пакети, створює системного користувача `cryptobot`, збирає
 venv і фронтенд, генерує `JWT_SECRET` і VAPID-ключі, вмикає systemd-юніт,
 налаштовує Caddy і фаєрвол. Сертифікат Caddy отримає сам при першому запиті.

@@ -6,7 +6,10 @@
 #   git clone https://github.com/Envyyy-uk/crypto_market_bot /tmp/cmb
 #   sudo bash /tmp/cmb/deploy/setup.sh bot.example.duckdns.org
 #
-# Аргумент — домен, який уже вказує A-записом на IP цього сервера.
+# Перший аргумент — домен, який уже вказує A-записом на IP цього сервера.
+# Третій (необов'язковий) — гілка; за замовчуванням гілка за замовчуванням
+# репозиторію. Розгортання з гілки, де ще немає frontend/src/config.ts,
+# зламає WebSocket у режимі "той самий origin".
 # Без домену Let's Encrypt не видасть сертифікат, а без HTTPS не працюють
 # ні встановлення PWA, ні push.
 
@@ -14,11 +17,12 @@ set -euo pipefail
 
 SITE_HOST="${1:-}"
 REPO_URL="${2:-https://github.com/Envyyy-uk/crypto_market_bot.git}"
+REPO_BRANCH="${3:-}"
 APP_DIR=/opt/crypto-market-bot
 APP_USER=cryptobot
 
 if [[ -z "$SITE_HOST" ]]; then
-	echo "Використання: sudo bash setup.sh <домен> [git-url]" >&2
+	echo "Використання: sudo bash setup.sh <домен> [git-url] [гілка]" >&2
 	exit 1
 fi
 if [[ $EUID -ne 0 ]]; then
@@ -37,8 +41,19 @@ echo "==> 2/8 Користувач і код"
 id -u "$APP_USER" >/dev/null 2>&1 || useradd --system --create-home --shell /usr/sbin/nologin "$APP_USER"
 if [[ -d "$APP_DIR/.git" ]]; then
 	git -C "$APP_DIR" pull --ff-only
+elif [[ -n "$REPO_BRANCH" ]]; then
+	git clone --branch "$REPO_BRANCH" "$REPO_URL" "$APP_DIR"
 else
 	git clone "$REPO_URL" "$APP_DIR"
+fi
+
+# Захист від тихо зламаного розгортання: без цього файла збірка фронтенду
+# з порожнім VITE_API_BASE дасть непрацездатний WebSocket.
+if [[ ! -f "$APP_DIR/frontend/src/config.ts" ]]; then
+	echo "ПОМИЛКА: у $APP_DIR немає frontend/src/config.ts." >&2
+	echo "Ця гілка не підтримує режим 'той самий origin'. Влийте гілку з config.ts" >&2
+	echo "або вкажіть її третім аргументом." >&2
+	exit 1
 fi
 
 echo "==> 3/8 Python-оточення"
