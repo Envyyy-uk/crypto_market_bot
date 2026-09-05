@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { usePushNotifications } from "../hooks/usePushNotifications";
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8000";
+import { API_BASE } from "../config";
 
 const SYMBOLS = ["BTCUSDT", "ETHUSDT", "SOLUSDT"];
 const CONDITIONS = [

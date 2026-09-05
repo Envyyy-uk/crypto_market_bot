@@ -1,10 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ConnectionStatus, MarketTicker } from "../types";
 
-const httpBase = import.meta.env.VITE_API_BASE ?? "http://localhost:8000";
-const WS_BASE = httpBase.startsWith("https")
-  ? httpBase.replace("https", "wss")
-  : httpBase.replace("http", "ws");
+import { WS_BASE } from "../config";
 
 const MIN_RETRY_DELAY = 1000;
 const MAX_RETRY_DELAY = 15000;

@@ -1,0 +1,43 @@
+# systemd-юніт бекенду. Встановлюється в /etc/systemd/system/cryptobot.service
+#   sudo systemctl enable --now cryptobot
+#   sudo systemctl status cryptobot
+#   journalctl -u cryptobot -f
+
+[Unit]
+Description=Crypto Market Bot API (FastAPI + uvicorn)
+# Мережа має бути ПІДНЯТА, а не просто налаштована: на старті застосунок
+# одразу відкриває WebSocket до біржі.
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=cryptobot
+Group=cryptobot
+WorkingDirectory=/opt/crypto-market-bot/backend
+
+# .env читає сам застосунок (python-dotenv) із цієї ж теки — EnvironmentFile
+# навмисно не використовуємо, щоб не мати двох джерел правди.
+ExecStart=/opt/crypto-market-bot/backend/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
+
+# Слухаємо ТІЛЬКИ 127.0.0.1: назовні застосунок дивиться через Caddy, який
+# тримає TLS. Порт 8000 з інтернету недоступний навіть без фаєрвола.
+
+# Автоперезапуск (Завдання 27). RestartSec, щоб не було циклу рестартів
+# при постійній помилці на старті.
+Restart=always
+RestartSec=5
+
+# Пісочниця: процесу доступний на запис лише каталог backend/, де лежать
+# crypto_bot.db і app.log. Решта файлової системи — тільки читання.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+ReadWritePaths=/opt/crypto-market-bot/backend
+
+[Install]
+WantedBy=multi-user.target

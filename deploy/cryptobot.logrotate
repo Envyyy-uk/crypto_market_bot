@@ -1,0 +1,13 @@
+# Встановлюється в /etc/logrotate.d/cryptobot.
+# app.log пишеться через logging.FileHandler без ротації — на сервері, що
+# працює місяцями, він з'їсть диск. Ротація без перезапуску сервісу:
+# copytruncate, бо застосунок тримає файл відкритим і про SIGHUP не знає.
+/opt/crypto-market-bot/backend/app.log {
+	weekly
+	rotate 4
+	compress
+	delaycompress
+	missingok
+	notifempty
+	copytruncate
+}

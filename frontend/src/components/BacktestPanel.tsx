@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Timeframe } from "../types";
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8000";
+import { API_BASE } from "../config";
 
 interface BacktestResult {
   totalSignals: number;

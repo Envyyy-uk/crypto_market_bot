@@ -1,0 +1,41 @@
+# Caddy: фронтенд і API за ОДНИМ доменом (один origin).
+#
+# Чому один домен, а не окремий під API:
+#   * CORS зникає як клас — браузер вважає /api/... своїм;
+#   * один TLS-сертифікат, який Caddy отримує й продовжує сам;
+#   * wss:// іде тим самим хостом, що й сторінка.
+#
+# SITE_HOST підставляє deploy/setup.sh.
+
+SITE_HOST {
+	encode gzip zstd
+
+	# УВАГА: саме handle, а не голі reverse_proxy + try_files поруч.
+	# Caddy виконує директиви у СВОЄМУ фіксованому порядку, а не в порядку
+	# рядків файлу, і try_files (клас rewrite) спрацьовує РАНІШЕ за
+	# reverse_proxy. Через це шлях /ws/markets встигає перетворитись на
+	# /index.html, матчер бекенду вже не збігається — і WebSocket тихо
+	# отримує HTML замість upgrade (сторінка працює, ціни не йдуть).
+	# Блоки handle взаємовиключні й перевіряються в порядку запису.
+	@backend path /api/* /ws/* /health /docs /docs/* /openapi.json /redoc
+	handle @backend {
+		# WebSocket-upgrade Caddy пропускає сам, окремих директив не треба.
+		reverse_proxy 127.0.0.1:8000
+	}
+
+	handle {
+		root * /opt/crypto-market-bot/frontend/dist
+
+		# Імена ассетів Vite хешує, тож їх можна кешувати назавжди.
+		# index.html і service worker — ні, інакше оновлення не доїде.
+		@immutable path /assets/*
+		header @immutable Cache-Control "public, max-age=31536000, immutable"
+		header /service-worker.js Cache-Control "no-cache"
+		header /index.html Cache-Control "no-cache"
+
+		# SPA: /analyze/BTCUSDT — маршрут react-router, файлу з таким шляхом
+		# немає. Без цього рядка пряме відкриття сторінки дало б 404.
+		try_files {path} /index.html
+		file_server
+	}
+}

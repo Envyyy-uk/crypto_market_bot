@@ -1,6 +1,6 @@
 import type { AnalysisResult, Candle, MarketTicker, Timeframe } from "./types";
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8000";
+import { API_BASE } from "./config";
 
 export async function getMarkets(): Promise<MarketTicker[]> {
   const res = await fetch(`${API_BASE}/api/markets`);
