@@ -26,7 +26,7 @@ export default class ErrorBoundary extends Component<
           <p className="text-sm text-ink">Something went wrong on this page.</p>
           <button
             onClick={() => window.location.reload()}
-            className="mt-4 rounded-lg bg-amber px-4 py-2 text-sm font-semibold text-deep"
+            className="mt-4 rounded-control bg-accent px-4 py-2 text-sm font-semibold text-deep"
           >
             Reload
           </button>

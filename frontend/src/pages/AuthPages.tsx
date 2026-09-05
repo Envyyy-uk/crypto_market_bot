@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const inputCls =
-  "w-full rounded-lg border border-border bg-panel2 px-3 py-2 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-amber";
+  "w-full rounded-control border border-border bg-panel2 px-3 py-2 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent";
 
 function AuthForm({ mode }: { mode: "login" | "register" }) {
   const { login, register } = useAuth();
@@ -33,7 +33,7 @@ function AuthForm({ mode }: { mode: "login" | "register" }) {
 
   return (
     <main className="mx-auto max-w-sm px-4 pb-16 sm:px-6">
-      <div className="mt-8 rounded-2xl border border-border bg-panel p-6">
+      <div className="mt-8 rounded-card border border-border bg-panel p-6">
         <h2 className="font-display text-lg font-semibold text-ink">
           {isLogin ? "Sign in" : "Create account"}
         </h2>
@@ -65,7 +65,7 @@ function AuthForm({ mode }: { mode: "login" | "register" }) {
           />
 
           {error && (
-            <p className="rounded-lg border border-bear/30 bg-bear/10 px-3 py-2 text-xs text-bear">
+            <p className="rounded-control border border-bear/30 bg-bear/10 px-3 py-2 text-xs text-bear">
               {error}
             </p>
           )}
@@ -73,7 +73,7 @@ function AuthForm({ mode }: { mode: "login" | "register" }) {
           <button
             type="submit"
             disabled={busy}
-            className="w-full rounded-lg bg-amber px-4 py-2 text-sm font-semibold text-deep transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="w-full rounded-control bg-accent px-4 py-2 text-sm font-semibold text-deep transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {busy ? "Please wait…" : isLogin ? "Sign in" : "Create account"}
           </button>
@@ -83,14 +83,14 @@ function AuthForm({ mode }: { mode: "login" | "register" }) {
           {isLogin ? (
             <>
               No account?{" "}
-              <Link to="/register" className="text-amber hover:underline">
+              <Link to="/register" className="text-accent hover:underline">
                 Create one
               </Link>
             </>
           ) : (
             <>
               Already registered?{" "}
-              <Link to="/login" className="text-amber hover:underline">
+              <Link to="/login" className="text-accent hover:underline">
                 Sign in
               </Link>
             </>

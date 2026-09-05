@@ -3,38 +3,54 @@
 @tailwind utilities;
 
 /*
- * Теми (Завдання 18). Темна — за замовчуванням; клас .light на <html>
- * вмикає світлу. ThemeContext ставить клас за системною темою або
- * ручним вибором користувача.
+ * Теми (Завдання 18). Темна — значення в :root; клас .light на <html>
+ * перевизначає їх. Клас ставить інлайн-скрипт в index.html ДО першого
+ * рендера, а ThemeContext далі тримає його в актуальному стані.
+ *
+ * Чому саме до рендера: ефекти дочірніх компонентів у React виконуються
+ * раніше за ефекти батьківських. Поки клас вішав ThemeProvider, графік
+ * встигав прочитати CSS-змінні темної теми і лишався темним на світлій
+ * сторінці назавжди — бо тема після цього вже не змінювалась.
+ *
+ * Кольори — RGB-трійки без функції rgb(), щоб працювали модифікатори
+ * прозорості Tailwind (bg-accent/10).
  */
-/* Палітра в стилі slate/blue: темний нічний синій фон + блакитний акцент.
-   Токен --c-amber історично звався за янтарним кольором — тепер це
-   загальний акцент бренду (синій), класи text-amber/bg-amber лишились. */
 :root {
-  --c-base: 10 15 26;      /* #0A0F1A — глибокий нічний синій */
-  --c-panel: 17 24 39;     /* #111827 — картки */
-  --c-panel2: 27 37 56;    /* #1B2538 — вкладені елементи / hover */
-  --c-border: 40 52 74;    /* #28344A */
-  --c-ink: 226 232 240;    /* #E2E8F0 (slate-200) */
-  --c-muted: 148 163 184;  /* #94A3B8 (slate-400) */
-  --c-amber: 59 130 246;   /* #3B82F6 (blue-500) — акцент бренду */
-  --c-bull: 34 197 94;     /* #22C55E */
-  --c-bear: 239 68 68;     /* #EF4444 */
-  --c-deep: 255 255 255;   /* текст на акцентних кнопках — білий на синьому */
+  /* Поверхні: base -> panel -> panel2 — три рівні глибини */
+  --c-base: 13 15 20;      /* #0D0F14 */
+  --c-panel: 22 25 33;     /* #161921 */
+  --c-panel2: 31 35 45;    /* #1F232D */
+  --c-border: 42 47 60;    /* #2A2F3C */
+  --c-ink: 237 240 246;    /* основний текст */
+  --c-muted: 150 158 175;  /* другорядний текст */
+  --c-accent: 129 140 248; /* #818CF8 indigo-400 — світліший, бо на темному */
+  --c-bull: 52 211 153;    /* #34D399 emerald-400 */
+  --c-bear: 248 113 113;   /* #F87171 red-400 */
+  --c-deep: 17 20 27;      /* текст на заливці акцентом */
+
+  /* На темному тіні не читаються — глибину дає межа й підсвітка зверху */
+  --shadow-card: 0 1px 0 0 rgb(255 255 255 / 0.04) inset;
+  --shadow-pop: 0 12px 32px -12px rgb(0 0 0 / 0.7);
+
   color-scheme: dark;
 }
 
 html.light {
-  --c-base: 241 245 249;   /* #F1F5F9 (slate-100) */
-  --c-panel: 255 255 255;  /* #FFFFFF */
-  --c-panel2: 233 239 247; /* #E9EFF7 */
-  --c-border: 213 221 233; /* #D5DDE9 */
-  --c-ink: 15 23 42;       /* #0F172A (slate-900) */
-  --c-muted: 100 116 139;  /* #64748B (slate-500) */
-  --c-amber: 37 99 235;    /* #2563EB (blue-600) — контрастніший на світлому */
-  --c-bull: 22 163 74;     /* #16A34A */
-  --c-bear: 220 38 38;     /* #DC2626 */
+  --c-base: 246 247 251;   /* #F6F7FB */
+  --c-panel: 255 255 255;
+  --c-panel2: 241 243 249; /* #F1F3F9 */
+  --c-border: 226 231 240; /* #E2E7F0 */
+  --c-ink: 18 20 28;
+  --c-muted: 110 118 135;
+  --c-accent: 79 70 229;   /* #4F46E5 indigo-600 — контрастніший на світлому */
+  --c-bull: 16 163 110;
+  --c-bear: 220 38 38;
   --c-deep: 255 255 255;
+
+  /* На світлому картки підіймає м'яка тінь, а не яскрава межа */
+  --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.06);
+  --shadow-pop: 0 16px 40px -16px rgb(15 23 42 / 0.25);
+
   color-scheme: light;
 }
 
@@ -66,12 +82,35 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Градієнтний заголовок бренду — синій перелив, як у референсі */
-.text-gradient-blue {
-  background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 55%, #93c5fd 100%);
+/* Заголовок бренду: перелив від акценту, тож він живе разом із темою */
+.text-gradient-brand {
+  background: linear-gradient(
+    90deg,
+    rgb(var(--c-accent)) 0%,
+    rgb(var(--c-accent) / 0.75) 55%,
+    rgb(var(--c-accent) / 0.5) 100%
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* Краї стрічки тікерів згасають, щоб рядок не обривався на півслові */
+.ticker-mask {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 3rem,
+    #000 calc(100% - 3rem),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 3rem,
+    #000 calc(100% - 3rem),
+    transparent 100%
+  );
 }
 
 /* Безшовна ticker-tape анімація — сигнатурний елемент шапки */
@@ -114,20 +153,29 @@ body {
 @keyframes price-flash-up {
   from {
     color: rgb(var(--c-bull));
-    text-shadow: 0 0 12px rgb(var(--c-bull) / 0.45);
   }
 }
 @keyframes price-flash-down {
   from {
     color: rgb(var(--c-bear));
-    text-shadow: 0 0 12px rgb(var(--c-bear) / 0.45);
   }
 }
 .price-flash-up {
-  animation: price-flash-up 0.6s ease-out;
+  animation: price-flash-up 0.5s ease-out;
 }
 .price-flash-down {
-  animation: price-flash-down 0.6s ease-out;
+  animation: price-flash-down 0.5s ease-out;
+}
+
+/* Повага до системного «зменшити рух»: спалахи й поява блоків вимикаються */
+@media (prefers-reduced-motion: reduce) {
+  .price-flash-up,
+  .price-flash-down,
+  .animate-fade-up,
+  .animate-ticker,
+  .skeleton {
+    animation: none !important;
+  }
 }
 
 /* Поява блоків знизу вгору при завантаженні сторінки */

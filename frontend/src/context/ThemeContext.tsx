@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useState,
   type ReactNode,
 } from "react";
@@ -37,7 +38,7 @@ function apply(resolved: "dark" | "light") {
   document.documentElement.classList.toggle("light", resolved === "light");
   // Колір системної смуги статусу (iPhone) під тему
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute("content", resolved === "light" ? "#F1F5F9" : "#0A0F1A");
+  if (meta) meta.setAttribute("content", resolved === "light" ? "#F6F7FB" : "#0D0F14");
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
@@ -47,8 +48,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   });
   const [resolved, setResolved] = useState<"dark" | "light">(() => resolve(mode));
 
-  // Застосування при зміні режиму
-  useEffect(() => {
+  // Застосування при зміні режиму. useLayoutEffect, а не useEffect: клас
+  // має стояти до відмальовки, інакше компоненти, що читають CSS-змінні на
+  // монтуванні, побачать кольори чужої теми.
+  useLayoutEffect(() => {
     const r = resolve(mode);
     setResolved(r);
     apply(r);

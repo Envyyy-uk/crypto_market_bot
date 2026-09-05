@@ -2,8 +2,8 @@ import type { ConnectionStatus as Status } from "../types";
 
 const CONFIG: Record<Status, { label: string; dot: string }> = {
   online: { label: "Connected", dot: "bg-bull" },
-  stale: { label: "No market data", dot: "bg-amber animate-pulse" },
-  connecting: { label: "Connecting…", dot: "bg-amber animate-pulse" },
+  stale: { label: "No market data", dot: "bg-accent animate-pulse" },
+  connecting: { label: "Connecting…", dot: "bg-accent animate-pulse" },
   offline: { label: "Offline", dot: "bg-bear" },
 };
 

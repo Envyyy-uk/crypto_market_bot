@@ -7,6 +7,9 @@ import SignalBadge from "../components/SignalBadge";
 import BacktestPanel from "../components/BacktestPanel";
 import OrderBook from "../components/OrderBook";
 import TradeLevelsPanel from "../components/TradeLevelsPanel";
+import SignalScale from "../components/SignalScale";
+import { Card } from "../components/ui/Card";
+import { formatUsd } from "../lib/format";
 
 const ANALYSIS_TIMEFRAMES: Timeframe[] = ["15m", "1h", "4h"]; // МВП з ТЗ (Завдання 32)
 const REFRESH_MS = 60_000;
@@ -19,33 +22,13 @@ const TREND_LABEL: Record<TrendType, { text: string; cls: string }> = {
 
 const RISK_CLS: Record<RiskLevel, string> = {
   Low: "bg-bull/10 text-bull border-bull/20",
-  Medium: "bg-amber/10 text-amber border-amber/30",
+  Medium: "bg-accent/10 text-accent border-accent/30",
   High: "bg-bear/10 text-bear border-bear/20",
 };
 
 function fmt(n: number | null | undefined, digits = 2) {
   if (n === null || n === undefined) return "—";
   return n.toLocaleString("en-US", { maximumFractionDigits: digits });
-}
-
-/** Смужка сили сигналу: |score| з maxScore, колір за знаком. */
-function StrengthBar({ score, maxScore }: { score: number; maxScore: number }) {
-  const pct = Math.min(Math.abs(score) / maxScore, 1) * 100;
-  const color = score > 0 ? "bg-bull" : score < 0 ? "bg-bear" : "bg-muted";
-  return (
-    <div>
-      <div className="mb-1 flex justify-between text-xs text-muted">
-        <span>Strength</span>
-        <span className="tabular">
-          {score > 0 ? "+" : ""}
-          {score}/{maxScore}
-        </span>
-      </div>
-      <div className="h-2 rounded-full bg-panel2">
-        <div className={`h-2 rounded-full ${color}`} style={{ width: `${pct}%` }} />
-      </div>
-    </div>
-  );
 }
 
 function IndicatorTile({
@@ -64,7 +47,7 @@ function IndicatorTile({
         ? "text-bear"
         : "text-muted";
   return (
-    <div className="rounded-xl border border-border bg-panel2 p-3">
+    <div className="rounded-card border border-border bg-panel2 p-3.5">
       <p className="text-xs text-muted">{label}</p>
       <p className="tabular mt-1 text-sm font-medium text-ink">{value}</p>
       {status && <p className={`mt-0.5 text-xs ${statusCls}`}>{status.replace(/_/g, " ")}</p>}
@@ -104,17 +87,17 @@ export default function AnalyzePage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
-      <div className="flex items-center justify-between py-4">
+      <div className="sticky top-0 z-30 -mx-4 flex items-center justify-between border-b border-border/60 bg-base/90 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
         <Link to="/" className="text-sm text-muted transition-colors hover:text-ink">
           ← Back to markets
         </Link>
-        <div className="flex gap-1 rounded-lg border border-border bg-panel2 p-1">
+        <div className="flex gap-1 rounded-control border border-border bg-panel2 p-1">
           {ANALYSIS_TIMEFRAMES.map((tf) => (
             <button
               key={tf}
               onClick={() => setInterval(tf)}
-              className={`rounded-md px-2.5 py-1 font-mono text-xs transition-colors ${
-                tf === interval ? "bg-amber text-deep font-semibold" : "text-muted hover:text-ink"
+              className={`rounded-[0.375rem] px-3 py-1 font-mono text-xs transition-colors ${
+                tf === interval ? "bg-accent font-semibold text-deep" : "text-muted hover:text-ink"
               }`}
             >
               {tf}
@@ -124,13 +107,13 @@ export default function AnalyzePage() {
       </div>
 
       {error && (
-        <div className="mb-6 rounded-xl border border-bear/30 bg-bear/10 px-4 py-3 text-sm text-bear">
+        <div className="mb-6 rounded-card border border-bear/30 bg-bear/10 px-4 py-3 text-sm text-bear">
           {error}
         </div>
       )}
 
       {loading && !analysis && (
-        <div className="rounded-2xl border border-border bg-panel p-8 text-sm text-muted">
+        <div className="rounded-card border border-border bg-panel p-8 text-sm text-muted shadow-card">
           Analyzing {sym.replace("USDT", "")}/USDT…
         </div>
       )}
@@ -138,14 +121,14 @@ export default function AnalyzePage() {
       {analysis && (
         <>
           {/* Головна картка сигналу */}
-          <div className="rounded-2xl border border-border bg-panel p-6">
+          <Card className="mt-4 p-5 sm:p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <p className="font-mono text-xs uppercase tracking-widest text-muted">
                   {sym.replace("USDT", "")}/USDT · {analysis.interval}
                 </p>
-                <p className="tabular mt-1 text-3xl font-semibold text-ink">
-                  ${fmt(analysis.price, analysis.price < 1 ? 6 : 2)}
+                <p className="tabular mt-1 text-3xl font-bold text-ink sm:text-4xl">
+                  {formatUsd(analysis.price)}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -159,7 +142,7 @@ export default function AnalyzePage() {
             </div>
 
             <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
-              <StrengthBar score={analysis.score} maxScore={analysis.maxScore} />
+              <SignalScale score={analysis.score} signal={analysis.signal} />
               <div className="text-sm">
                 <span className="text-muted">Trend: </span>
                 {trend && <span className={`font-medium ${trend.cls}`}>{trend.text}</span>}
@@ -181,7 +164,7 @@ export default function AnalyzePage() {
               <ul className="space-y-1.5">
                 {analysis.reasons.map((r) => (
                   <li key={r} className="flex items-start gap-2 text-sm text-ink">
-                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber" />
+                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-accent" />
                     {r}
                   </li>
                 ))}
@@ -194,7 +177,7 @@ export default function AnalyzePage() {
             <p className="mt-4 text-right text-xs text-muted">
               Updated {new Date(analysis.updatedAt).toLocaleTimeString()}
             </p>
-          </div>
+          </Card>
 
           {/* Пропоновані рівні входу/TP/SL: Spot/Futures + повзунок плеча */}
           {analysis.tradeLevels && <TradeLevelsPanel levels={analysis.tradeLevels} />}
@@ -202,6 +185,8 @@ export default function AnalyzePage() {
           {/* Графік + жива глибина ринку (bid/ask) поруч, як у біржовому терміналі */}
           <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1.6fr_1fr]">
             <CandleChart symbol={sym} interval={interval} onIntervalChange={setInterval} />
+            {/* На вузькому екрані ордербук згорнутий (див. OrderBook): 30 його
+                рядків відсували індикатори й бек-тест далеко за межу видимого */}
             <OrderBook symbol={sym} />
           </div>
 

@@ -10,11 +10,11 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <main className="mx-auto max-w-sm px-4 pb-16 pt-8 sm:px-6">
-        <div className="rounded-2xl border border-border bg-panel p-6 text-center">
+        <div className="rounded-card border border-border bg-panel p-6 text-center">
           <p className="text-sm text-muted">You are not signed in.</p>
           <Link
             to="/login"
-            className="mt-4 inline-block rounded-lg bg-amber px-4 py-2 text-sm font-semibold text-deep"
+            className="mt-4 inline-block rounded-control bg-accent px-4 py-2 text-sm font-semibold text-deep"
           >
             Sign in
           </Link>
@@ -25,7 +25,7 @@ export default function ProfilePage() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 pb-16 sm:px-6">
-      <div className="mt-4 rounded-2xl border border-border bg-panel p-6">
+      <div className="mt-4 rounded-card border border-border bg-panel p-6">
         <h2 className="font-display text-lg font-semibold text-ink">Profile</h2>
         <p className="mt-2 text-sm text-muted">
           Signed in as <span className="text-ink">{user.email}</span>
@@ -40,14 +40,14 @@ export default function ProfilePage() {
             logout();
             navigate("/");
           }}
-          className="mt-4 rounded-lg border border-border px-4 py-2 text-sm text-muted transition-colors hover:border-bear/40 hover:text-bear"
+          className="mt-4 rounded-control border border-border px-4 py-2 text-sm text-muted transition-colors hover:border-bear/40 hover:text-bear"
         >
           Sign out
         </button>
       </div>
 
       {/* Керування обраним: видалення і зміна порядку (Завдання 12) */}
-      <div className="mt-6 rounded-2xl border border-border bg-panel">
+      <div className="mt-6 rounded-card border border-border bg-panel">
         <div className="border-b border-border px-5 py-3">
           <h3 className="font-display text-sm font-medium text-ink">Favourite assets</h3>
           <p className="mt-0.5 text-xs text-muted">
@@ -62,7 +62,7 @@ export default function ProfilePage() {
               <li key={symbol} className="flex items-center justify-between px-5 py-2.5">
                 <Link
                   to={`/analyze/${symbol}`}
-                  className="font-mono text-sm text-ink hover:text-amber"
+                  className="font-mono text-sm text-ink hover:text-accent"
                 >
                   {symbol.replace("USDT", "")}
                   <span className="text-muted">/USDT</span>

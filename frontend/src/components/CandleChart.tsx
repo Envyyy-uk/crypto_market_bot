@@ -26,6 +26,16 @@ function themeColors() {
   };
 }
 
+/**
+ * Висота полотна. Прев'ю на широкому екрані стоїть поруч із колонкою
+ * ринків, тож фіксовані 260px лишали під ним порожнє місце — від 600px ширини
+ * розтягуємо полотно до 380.
+ */
+function chartHeight(preview: boolean, width: number): number {
+  if (!preview) return 420;
+  return width >= 600 ? 380 : 260;
+}
+
 export default function CandleChart({
   symbol,
   interval: controlledInterval,
@@ -71,7 +81,7 @@ export default function CandleChart({
       rightPriceScale: { borderColor: c.border },
       timeScale: { borderColor: c.border, timeVisible: true, secondsVisible: false },
       width: containerRef.current.clientWidth,
-      height: preview ? 260 : 420,
+      height: chartHeight(preview, containerRef.current.clientWidth),
       handleScroll: !preview,
       handleScale: !preview,
     });
@@ -100,7 +110,7 @@ export default function CandleChart({
 
     const resizeObserver = new ResizeObserver((entries) => {
       const width = entries[0]?.contentRect.width;
-      if (width) chart.applyOptions({ width });
+      if (width) chart.applyOptions({ width, height: chartHeight(preview, width) });
     });
     resizeObserver.observe(containerRef.current);
 
@@ -181,20 +191,21 @@ export default function CandleChart({
   }, [symbol, interval, theme, preview]);
 
   return (
-    <div className="animate-fade-up rounded-xl border border-border bg-panel p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="font-display text-sm font-medium text-ink">
-          {symbol.replace("USDT", "")}/USDT {preview ? "· 24h preview" : "chart"}
+    <div className="animate-fade-up rounded-card border border-border bg-panel p-4 shadow-card">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="font-display text-sm font-semibold text-ink">
+          {symbol.replace("USDT", "")}/USDT
+          {preview && <span className="ml-1.5 font-normal text-muted">· 24h preview</span>}
         </h2>
         {!preview && (
-          <div className="flex gap-1 rounded-lg border border-border bg-panel2 p-1">
+          <div className="flex gap-1 rounded-control border border-border bg-panel2 p-1">
             {TIMEFRAMES.map((tf) => (
               <button
                 key={tf}
                 onClick={() => setInterval(tf)}
-                className={`rounded-md px-2.5 py-1 font-mono text-xs transition-colors ${
+                className={`rounded-[0.375rem] px-2.5 py-1 font-mono text-xs transition-colors ${
                   tf === interval
-                    ? "bg-amber text-deep font-semibold"
+                    ? "bg-accent font-semibold text-deep"
                     : "text-muted hover:text-ink"
                 }`}
               >
@@ -207,12 +218,7 @@ export default function CandleChart({
 
       <div className="relative">
         <div ref={containerRef} />
-        {loading && (
-          <div
-            className="skeleton absolute inset-0"
-            style={{ height: preview ? 260 : 420 }}
-          />
-        )}
+        {loading && <div className="skeleton absolute inset-0" />}
         {error && !loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-panel/80 text-sm text-bear">
             {error}

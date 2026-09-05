@@ -27,7 +27,7 @@ interface AlertItem {
 }
 
 const inputCls =
-  "rounded-lg border border-border bg-panel2 px-3 py-2 text-sm text-ink focus:outline-none focus:ring-1 focus:ring-amber";
+  "rounded-control border border-border bg-panel2 px-3 py-2 text-sm text-ink focus:outline-none focus:ring-1 focus:ring-accent";
 
 function describe(a: AlertItem): string {
   const pair = a.symbol.replace("USDT", "/USDT");
@@ -126,11 +126,11 @@ export default function AlertsPage() {
   if (!user) {
     return (
       <main className="mx-auto max-w-sm px-4 pb-16 pt-8 sm:px-6">
-        <div className="rounded-2xl border border-border bg-panel p-6 text-center">
+        <div className="rounded-card border border-border bg-panel p-6 text-center">
           <p className="text-sm text-muted">Sign in to create price and signal alerts.</p>
           <Link
             to="/login"
-            className="mt-4 inline-block rounded-lg bg-amber px-4 py-2 text-sm font-semibold text-deep"
+            className="mt-4 inline-block rounded-control bg-accent px-4 py-2 text-sm font-semibold text-deep"
           >
             Sign in
           </Link>
@@ -144,7 +144,7 @@ export default function AlertsPage() {
       <h2 className="py-4 font-display text-base font-semibold text-ink">Alerts</h2>
 
       {/* Push-сповіщення (Завдання 15) */}
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-panel px-4 py-3">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-card border border-border bg-panel px-4 py-3">
         <div>
           <p className="text-sm text-ink">Push notifications</p>
           <p className="text-xs text-muted">
@@ -159,14 +159,14 @@ export default function AlertsPage() {
         {push.state === "on" ? (
           <button
             onClick={push.disable}
-            className="rounded-lg border border-border px-3 py-1.5 text-sm text-muted transition-colors hover:text-ink"
+            className="rounded-control border border-border px-3 py-1.5 text-sm text-muted transition-colors hover:text-ink"
           >
             Disable
           </button>
         ) : push.state === "off" ? (
           <button
             onClick={push.enable}
-            className="rounded-lg bg-amber px-3 py-1.5 text-sm font-semibold text-deep transition-opacity hover:opacity-90"
+            className="rounded-control bg-accent px-3 py-1.5 text-sm font-semibold text-deep transition-opacity hover:opacity-90"
           >
             Enable
           </button>
@@ -176,7 +176,7 @@ export default function AlertsPage() {
       {/* Форма створення */}
       <form
         onSubmit={handleCreate}
-        className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-panel p-4"
+        className="flex flex-wrap items-center gap-2 rounded-card border border-border bg-panel p-4"
       >
         <span className="text-sm text-muted">Notify me when</span>
         <select value={symbol} onChange={(e) => setSymbol(e.target.value)} className={inputCls}>
@@ -226,20 +226,20 @@ export default function AlertsPage() {
         <button
           type="submit"
           disabled={busy}
-          className="rounded-lg bg-amber px-4 py-2 text-sm font-semibold text-deep transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="rounded-control bg-accent px-4 py-2 text-sm font-semibold text-deep transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {busy ? "Creating…" : "Create alert"}
         </button>
       </form>
 
       {error && (
-        <p className="mt-3 rounded-lg border border-bear/30 bg-bear/10 px-3 py-2 text-xs text-bear">
+        <p className="mt-3 rounded-control border border-bear/30 bg-bear/10 px-3 py-2 text-xs text-bear">
           {error}
         </p>
       )}
 
       {/* Список */}
-      <div className="mt-6 overflow-hidden rounded-2xl border border-border bg-panel">
+      <div className="mt-6 overflow-hidden rounded-card border border-border bg-panel">
         {loading ? (
           <p className="p-6 text-center text-sm text-muted">Loading alerts…</p>
         ) : alerts.length === 0 ? (
@@ -256,7 +256,7 @@ export default function AlertsPage() {
                     {a.isActive ? (
                       "Active — watching"
                     ) : (
-                      <span className="text-amber">
+                      <span className="text-accent">
                         Fired {a.firedAt ? new Date(a.firedAt).toLocaleString() : ""}
                         {a.firedValue ? ` at ${a.firedValue}` : ""}
                       </span>

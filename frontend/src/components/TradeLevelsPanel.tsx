@@ -49,18 +49,18 @@ export default function TradeLevelsPanel({ levels }: { levels: TradeLevels }) {
   const pnlMult = mode === "futures" ? leverage : 1;
 
   return (
-    <div className="animate-fade-up mt-3 rounded-xl border border-border bg-panel p-4">
+    <div className="animate-fade-up mt-3 rounded-card border border-border bg-panel p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-xs uppercase tracking-wider text-muted">Suggested trade levels</p>
         <div className="flex items-center gap-2">
           {/* Spot / Futures */}
-          <div className="flex rounded-lg border border-border bg-panel2 p-0.5">
+          <div className="flex rounded-control border border-border bg-panel2 p-0.5">
             {(["spot", "futures"] as const).map((m) => (
               <button
                 key={m}
                 onClick={() => setMode(m)}
                 className={`rounded-md px-2.5 py-1 text-xs font-medium capitalize transition-colors ${
-                  mode === m ? "bg-amber text-deep" : "text-muted hover:text-ink"
+                  mode === m ? "bg-accent text-deep" : "text-muted hover:text-ink"
                 }`}
               >
                 {m}
@@ -112,10 +112,10 @@ export default function TradeLevelsPanel({ levels }: { levels: TradeLevels }) {
 
       {/* Futures: повзунок плеча + ліквідація наживо */}
       {mode === "futures" && lev && (
-        <div className="mt-4 rounded-xl border border-amber/30 bg-amber/5 p-4">
+        <div className="mt-4 rounded-card border border-accent/30 bg-accent/5 p-4">
           <div className="flex items-center justify-between">
             <p className="text-xs uppercase tracking-wider text-muted">Leverage</p>
-            <span className="tabular text-base font-semibold text-amber">{leverage}x</span>
+            <span className="tabular text-base font-semibold text-accent">{leverage}x</span>
           </div>
           <input
             type="range"
@@ -124,12 +124,12 @@ export default function TradeLevelsPanel({ levels }: { levels: TradeLevels }) {
             step={1}
             value={leverage}
             onChange={(e) => setLeverage(Number(e.target.value))}
-            className="mt-2 w-full accent-amber"
+            className="mt-2 w-full accent-accent"
             aria-label="Leverage"
           />
           <div className="mt-1 flex justify-between text-[10px] text-muted">
             <span>1x</span>
-            <span className="text-amber">safe ≤ {fmt(lev.maxSafeLeverage, 1)}x</span>
+            <span className="text-accent">safe ≤ {fmt(lev.maxSafeLeverage, 1)}x</span>
             <span>{lev.maxLeverageCeiling}x</span>
           </div>
 
@@ -147,14 +147,14 @@ export default function TradeLevelsPanel({ levels }: { levels: TradeLevels }) {
           </div>
 
           {overSafe && (
-            <p className="mt-3 rounded-lg border border-bear/30 bg-bear/10 px-3 py-2 text-xs text-bear">
+            <p className="mt-3 rounded-control border border-bear/30 bg-bear/10 px-3 py-2 text-xs text-bear">
               At {leverage}x the estimated liquidation is closer than your stop-loss — the
               exchange would liquidate before the stop triggers. Stay at or below{" "}
               {fmt(lev.maxSafeLeverage, 1)}x for this setup.
             </p>
           )}
           {lev.warning && !overSafe && (
-            <p className="mt-3 rounded-lg border border-bear/30 bg-bear/10 px-3 py-2 text-xs text-bear">
+            <p className="mt-3 rounded-control border border-bear/30 bg-bear/10 px-3 py-2 text-xs text-bear">
               {lev.warning}
             </p>
           )}

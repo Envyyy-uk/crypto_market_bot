@@ -9,7 +9,7 @@ const SIGNAL_TYPES = ["", "Strong Buy", "Buy", "Neutral", "Sell", "Strong Sell"]
 const TIMEFRAMES = ["", "15m", "1h", "4h"];
 
 const selectCls =
-  "rounded-lg border border-border bg-panel2 px-3 py-1.5 text-sm text-ink focus:outline-none focus:ring-1 focus:ring-amber";
+  "rounded-control border border-border bg-panel2 px-3 py-1.5 text-sm text-ink focus:outline-none focus:ring-1 focus:ring-accent";
 
 function fmtPrice(n: number) {
   return n.toLocaleString("en-US", { maximumFractionDigits: n < 1 ? 6 : 2 });
@@ -67,7 +67,7 @@ export default function SignalsPage() {
 
       {/* Точність системи (Завдання 21) */}
       {stats && stats.evaluatedSignals > 0 && (
-        <div className="mb-4 flex flex-wrap gap-5 rounded-2xl border border-border bg-panel px-5 py-3 text-sm">
+        <div className="mb-4 flex flex-wrap gap-5 rounded-card border border-border bg-panel px-5 py-3 text-sm">
           <span className="text-muted">
             Evaluated: <span className="tabular text-ink">{stats.evaluatedSignals}</span>
           </span>
@@ -133,12 +133,12 @@ export default function SignalsPage() {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-xl border border-bear/30 bg-bear/10 px-4 py-3 text-sm text-bear">
+        <div className="mb-4 rounded-card border border-bear/30 bg-bear/10 px-4 py-3 text-sm text-bear">
           {error}
         </div>
       )}
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-panel">
+      <div className="overflow-hidden rounded-card border border-border bg-panel">
         {loading ? (
           <p className="p-8 text-center text-sm text-muted">Loading signal history…</p>
         ) : records.length === 0 ? (
@@ -154,7 +154,7 @@ export default function SignalsPage() {
                   <div className="flex items-center gap-3">
                     <Link
                       to={`/analyze/${r.symbol}`}
-                      className="font-mono text-sm text-ink hover:text-amber"
+                      className="font-mono text-sm text-ink hover:text-accent"
                     >
                       {r.symbol.replace("USDT", "")}
                       <span className="text-muted">/USDT</span>

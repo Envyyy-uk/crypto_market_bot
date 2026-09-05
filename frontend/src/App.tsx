@@ -30,7 +30,9 @@ function Shell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="pt-safe content-with-tabbar min-h-screen bg-base text-ink">
-      <div className="overflow-hidden border-b border-border bg-panel py-2">
+      {/* Стрічка тікерів. Маска по краях: без неї рядок обривався на
+          півслові й виглядав як помилка верстки, а не як біжучий рядок. */}
+      <div className="ticker-mask overflow-hidden border-b border-border bg-panel py-2">
         {tapeLoop.length > 0 ? (
           <div className="flex w-max animate-ticker gap-8 whitespace-nowrap px-4">
             {tapeLoop.map((t, i) => (
@@ -48,17 +50,20 @@ function Shell({ children }: { children: React.ReactNode }) {
         )}
       </div>
 
-      <header className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-        <div className="flex items-baseline gap-3">
-          <h1 className="text-gradient-blue font-display text-base font-bold tracking-tight">
+      <header className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+        <div className="flex min-w-0 items-baseline gap-3">
+          <Link
+            to="/"
+            className="text-gradient-brand shrink-0 font-display text-base font-bold tracking-tight"
+          >
             Crypto Market Bot
-          </h1>
-          <p className="hidden text-xs text-muted sm:block">
+          </Link>
+          <p className="hidden truncate text-xs text-muted lg:block">
             Analytical signals — not financial advice.
           </p>
         </div>
-        <div className="flex items-center gap-4">
-          <nav className="hidden gap-3 text-sm sm:flex">
+        <div className="flex shrink-0 items-center gap-3">
+          <nav className="hidden gap-4 text-sm sm:flex">
             <Link to="/" className="text-muted transition-colors hover:text-ink">
               Markets
             </Link>
