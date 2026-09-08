@@ -8,7 +8,14 @@
  *  - push / notificationclick: доставка сповіщень (Завдання 15).
  */
 
-const CACHE_NAME = "cryptobot-shell-v1";
+// Ідентифікатор збірки підставляє vite.config.ts на етапі build.
+// Раніше тут був незмінний "cryptobot-shell-v1": назва кеша не мінялась
+// ніколи, тож activate (який видаляє кеші з ІНШОЮ назвою) не видаляв нічого,
+// а оболонка оновлювалась лише в install — а той запускається тільки коли
+// зміняться байти цього файлу. У результаті браузер, що заходив на сайт
+// одного разу, залишався на тій версії назавжди.
+const BUILD_ID = "__BUILD_ID__";
+const CACHE_NAME = `cryptobot-shell-${BUILD_ID}`;
 const APP_SHELL = ["/", "/manifest.json", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 self.addEventListener("install", (event) => {
@@ -35,10 +42,20 @@ self.addEventListener("fetch", (event) => {
   if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/ws/")) return;
   if (event.request.method !== "GET") return;
 
-  // Навігація: мережа -> кеш оболонки (офлайн-режим)
+  // Навігація: мережа -> кеш оболонки (офлайн-режим). Успішну відповідь
+  // одразу кладемо в кеш, щоб офлайн-фолбек ніколи не відставав від сайту
+  // навіть якщо підстановка BUILD_ID колись зламається.
   if (event.request.mode === "navigate") {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match("/").then((r) => r ?? Response.error()))
+      fetch(event.request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put("/", clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match("/").then((r) => r ?? Response.error()))
     );
     return;
   }
