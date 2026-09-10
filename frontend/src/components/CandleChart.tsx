@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   createChart,
   CrosshairMode,
@@ -41,12 +41,15 @@ export default function CandleChart({
   interval: controlledInterval,
   onIntervalChange,
   preview = false,
+  action,
 }: {
   symbol: string;
   interval?: Timeframe;
   onIntervalChange?: (tf: Timeframe) => void;
   /** Компактний нередагований превʼю-режим для головної: без кнопок і взаємодії. */
   preview?: boolean;
+  /** Дія праворуч у шапці картки (у превʼю — перехід до повного аналізу). */
+  action?: ReactNode;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
@@ -197,6 +200,7 @@ export default function CandleChart({
           {symbol.replace("USDT", "")}/USDT
           {preview && <span className="ml-1.5 font-normal text-muted">· 24h preview</span>}
         </h2>
+        {action}
         {!preview && (
           <div className="flex gap-1 rounded-control border border-border bg-panel2 p-1">
             {TIMEFRAMES.map((tf) => (

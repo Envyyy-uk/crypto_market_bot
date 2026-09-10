@@ -16,6 +16,7 @@ import BottomNav from "./components/BottomNav";
 import Footer from "./components/Footer";
 import ScrollToTopButton from "./components/ScrollToTopButton";
 import { LoginPage, RegisterPage } from "./pages/AuthPages";
+import PrivacyPage from "./pages/PrivacyPage";
 
 /** Спільна шапка: ticker tape + назва + навігація + статус з'єднання. */
 function Shell({ children }: { children: React.ReactNode }) {
@@ -29,7 +30,11 @@ function Shell({ children }: { children: React.ReactNode }) {
   const tapeLoop = [...tape, ...tape];
 
   return (
-    <div className="pt-safe content-with-tabbar min-h-screen bg-base text-ink">
+    // flex-col + flex-1 на контенті = футер завжди внизу вікна.
+    // Без цього на коротких сторінках (наприклад, Profile без входу) він
+    // зупинявся одразу під контентом, посеред екрана, а нижче лишалась
+    // порожнеча — здавалося, що футер "стрибає" від сторінки до сторінки.
+    <div className="pt-safe content-with-tabbar flex min-h-screen flex-col bg-base text-ink">
       {/* Стрічка тікерів. Маска по краях: без неї рядок обривався на
           півслові й виглядав як помилка верстки, а не як біжучий рядок. */}
       <div className="ticker-mask overflow-hidden border-b border-border bg-panel py-2">
@@ -88,7 +93,7 @@ function Shell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {children}
+      <div className="flex-1">{children}</div>
       <Footer />
       <ScrollToTopButton />
       <BottomNav />
@@ -114,6 +119,7 @@ export default function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
               </Routes>
               </ErrorBoundary>
             </Shell>

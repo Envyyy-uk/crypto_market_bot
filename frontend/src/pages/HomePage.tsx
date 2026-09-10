@@ -110,24 +110,41 @@ export default function HomePage() {
         </Link>
       </div>
 
-      {/* Сітка: превʼю графіка (клік -> повний аналіз) | ринки + сигнали */}
+      {/*
+        На широкому екрані колонка ринків набагато вища за графік, тож під
+        графіком зяяла порожнеча майже на його висоту. Тепер "Latest signals"
+        стоїть під графіком у лівій колонці, а список ринків займає праву на
+        дві строки. Порядок у DOM лишається графік -> ринки -> сигнали, тож на
+        телефоні (одна колонка) послідовність та сама, що й була.
+      */}
       <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.6fr)_minmax(300px,1fr)]">
+        {/* Підказку про перехід перенесено в шапку картки й вона видима
+            завжди. Раніше вона з'являлась лише на наведення — а на телефоні
+            наведення не існує, тож на головному пристрої застосунку її не
+            бачив ніхто; до того ж унизу вона налазила на підписи осі часу. */}
         <Link
           to={`/analyze/${selectedSymbol}`}
           aria-label={`Open full ${selectedSymbol} chart and analysis`}
-          className="group relative block transition-opacity hover:opacity-90"
+          className="block transition-opacity hover:opacity-90 lg:col-start-1 lg:row-start-1"
         >
-          <CandleChart symbol={selectedSymbol} preview />
-          <span className="pointer-events-none absolute bottom-3 right-3 rounded-md border border-border bg-panel2/90 px-2 py-1 text-xs text-muted opacity-0 transition-opacity group-hover:opacity-100">
-            Open full chart →
-          </span>
+          <CandleChart
+            symbol={selectedSymbol}
+            preview
+            action={
+              <span className="shrink-0 rounded-control border border-border bg-panel2 px-2.5 py-1 text-xs font-medium text-accent">
+                Open full chart →
+              </span>
+            }
+          />
         </Link>
-        <div className="space-y-3">
+        <div className="lg:col-start-2 lg:row-span-2">
           <MarketList
             tickers={tickers}
             selectedSymbol={selectedSymbol}
             onSelect={setSelectedSymbol}
           />
+        </div>
+        <div className="lg:col-start-1 lg:row-start-2">
           <LatestSignals />
         </div>
       </div>
