@@ -9,8 +9,31 @@ import {
 import { getCandles } from "../api";
 import type { Timeframe } from "../types";
 import { useTheme } from "../context/ThemeContext";
+import { useMarkets } from "../context/MarketStreamContext";
 
 const TIMEFRAMES: Timeframe[] = ["1m", "5m", "15m", "1h", "4h", "1d"];
+
+/**
+ * Як часто перезавантажувати серію свічок.
+ *
+ * Жива ціна рухає лише ОСТАННЮ свічку (див. нижче). Щоб на графіку
+ * з'являлися нові свічки, коли поточна закривається, серію треба час від
+ * часу перечитувати. Хвилина — компроміс: для 1m це майже точно момент
+ * закриття, для старших таймфреймів просто трохи зайвого трафіку.
+ */
+const RELOAD_MS = 60_000;
+
+/**
+ * Наскільки жива ціна може відрізнятись від останньої свічки, щоб ми
+ * все ще вважали її тією самою свічкою.
+ *
+ * Свічки приходять з Binance, а жива ціна — з Bybit WS (гібридна схема,
+ * див. backend/app/services/candles.py). Зазвичай вони збігаються з
+ * точністю до дрібниць, але якщо джерела розійдуться — наприклад, одне
+ * віддає застарілі дані — оновлення намалює різкий шип і зіпсує масштаб
+ * усього графіка. У такому разі краще лишити свічку як є.
+ */
+const MAX_DIVERGENCE = 0.05;
 
 /** Кольори з CSS-змінних теми (Завдання 18) — графік слідує за темою. */
 function themeColors() {
@@ -62,6 +85,18 @@ export default function CandleChart({
     if (onIntervalChange) onIntervalChange(tf);
     else setInternalInterval(tf);
   };
+
+  // Остання свічка серії: жива ціна рухає їй close, розсуваючи high/low.
+  // Без цього графік був мертвий — ціна поруч тікала, а свічки стояли.
+  const lastCandleRef = useRef<{
+    time: UTCTimestamp;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+  } | null>(null);
+  const { tickers } = useMarkets();
+  const livePrice = tickers.find((t) => t.symbol === symbol)?.price;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -156,15 +191,19 @@ export default function CandleChart({
         const candles = await getCandles(symbol, preview ? "1h" : interval, preview ? 48 : 500);
         if (cancelled) return;
 
-        candleSeriesRef.current?.setData(
-          candles.map((c) => ({
-            time: Math.floor(c.time / 1000) as UTCTimestamp,
-            open: c.open,
-            high: c.high,
-            low: c.low,
-            close: c.close,
-          }))
-        );
+        const bars = candles.map((c) => ({
+          time: Math.floor(c.time / 1000) as UTCTimestamp,
+          open: c.open,
+          high: c.high,
+          low: c.low,
+          close: c.close,
+        }));
+        candleSeriesRef.current?.setData(bars);
+
+        const last = bars[bars.length - 1];
+        lastCandleRef.current = last
+          ? { time: last.time, open: last.open, high: last.high, low: last.low, close: last.close }
+          : null;
 
         volumeSeriesRef.current?.setData(
           candles.map((c) => ({
@@ -188,10 +227,29 @@ export default function CandleChart({
     }
 
     load();
+    // Періодичне перечитування, щоб на графіку з'являлись нові свічки
+    const timer = window.setInterval(load, RELOAD_MS);
     return () => {
       cancelled = true;
+      window.clearInterval(timer);
     };
   }, [symbol, interval, theme, preview]);
+
+  // Жива ціна: рухаємо останню свічку, не перемальовуючи всю серію
+  useEffect(() => {
+    const bar = lastCandleRef.current;
+    if (livePrice === undefined || !bar || !candleSeriesRef.current) return;
+    if (Math.abs(livePrice - bar.close) / bar.close > MAX_DIVERGENCE) return;
+    bar.high = Math.max(bar.high, livePrice);
+    bar.low = Math.min(bar.low, livePrice);
+    candleSeriesRef.current.update({
+      time: bar.time,
+      open: bar.open,
+      high: bar.high,
+      low: bar.low,
+      close: livePrice,
+    });
+  }, [livePrice]);
 
   return (
     <div className="animate-fade-up rounded-card border border-border bg-panel p-4 shadow-card">
