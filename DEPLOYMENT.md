@@ -41,9 +41,15 @@
    sudo bash /tmp/cmb/deploy/setup.sh bot.example.duckdns.org
    ```
 
-   Скрипт клонує гілку за замовчуванням. Якщо потрібне розгортання з іншої
-   гілки — третім аргументом:
-   `sudo bash /tmp/cmb/deploy/setup.sh bot.example.duckdns.org "" назва-гілки`
+   **Розгортання не з гілки за замовчуванням** потребує двох змін, а не
+   однієї: гілку треба вказати і при клонуванні (інакше в `/tmp/cmb` не
+   буде самої теки `deploy/`), і третім аргументом скрипта (він визначає,
+   що саме розгортається на сервер):
+
+   ```bash
+   git clone -b НАЗВА-ГІЛКИ https://github.com/Envyyy-uk/crypto_market_bot /tmp/cmb
+   sudo bash /tmp/cmb/deploy/setup.sh bot.example.duckdns.org "" НАЗВА-ГІЛКИ
+   ```
 
 Скрипт ставить пакети, створює системного користувача `cryptobot`, збирає
 venv і фронтенд, генерує `JWT_SECRET` і VAPID-ключі, вмикає systemd-юніт,
