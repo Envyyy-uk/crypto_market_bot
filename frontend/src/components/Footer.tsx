@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const GITHUB_URL = "https://github.com/Envyyy-uk/crypto_market_bot";
 
 /** Нижній колонтитул: копірайт + посилання на GitHub-репозиторій. */
@@ -8,6 +10,12 @@ export default function Footer() {
         <p className="text-sm text-muted">
           © {new Date().getFullYear()} Envyyy-uk | Crypto Market Bot
         </p>
+        <Link
+          to="/privacy"
+          className="text-sm text-muted underline-offset-4 transition-colors hover:text-ink hover:underline"
+        >
+          Privacy
+        </Link>
         <a
           href={GITHUB_URL}
           target="_blank"
