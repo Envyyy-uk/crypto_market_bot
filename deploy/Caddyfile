@@ -20,7 +20,14 @@ SITE_HOST {
 	@backend path /api/* /ws/* /health /docs /docs/* /openapi.json /redoc
 	handle @backend {
 		# WebSocket-upgrade Caddy пропускає сам, окремих директив не треба.
-		reverse_proxy 127.0.0.1:8000
+		reverse_proxy 127.0.0.1:8000 {
+			# ПЕРЕЗАПИСУЄМО, а не доповнюємо: типово Caddy дописує реальний
+			# IP до значення, надісланого клієнтом, і тоді перший елемент
+			# списку — те, що вигадав сам відвідувач. Rate limiter читає
+			# саме перший елемент, тож без цього рядка обмеження обходиться
+			# одним заголовком у запиті.
+			header_up X-Forwarded-For {remote_host}
+		}
 	}
 
 	handle {

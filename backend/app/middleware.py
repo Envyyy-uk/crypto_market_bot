@@ -28,6 +28,29 @@ LIMITS = [
 ]
 
 
+def client_ip(request: Request) -> str:
+    """
+    IP відвідувача.
+
+    За reverse proxy (Caddy на проді) TCP-з'єднання приходить з localhost,
+    а `request.client` взагалі порожній — перевірено, uvicorn пише в лозі
+    `None:0`. Через це всі відвідувачі потрапляли в один кошик "unknown":
+    ліміт 120 запитів/хв ставав спільним на весь сайт, а ліміт на /api/auth
+    дозволяв одній людині заблокувати вхід усім іншим.
+
+    Справжню адресу передає проксі в X-Forwarded-For. Довіряти цьому
+    заголовку можна лише тому, що Caddy ПЕРЕЗАПИСУЄ його значенням
+    реального peer-а (див. header_up у deploy/Caddyfile) — інакше будь-хто
+    надсилав би туди вигаданий IP і обходив обмеження.
+    """
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        first = forwarded.split(",")[0].strip()
+        if first:
+            return first
+    return request.client.host if request.client else "unknown"
+
+
 class RateLimitMiddleware(BaseHTTPMiddleware):
     def __init__(self, app):
         super().__init__(app)
@@ -46,7 +69,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         prefix, limit = rule
-        ip = request.client.host if request.client else "unknown"
+        ip = client_ip(request)
         key = (ip, prefix)
         now = time.monotonic()
 
