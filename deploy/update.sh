@@ -12,6 +12,13 @@ APP_USER=cryptobot
 
 [[ $EUID -eq 0 ]] || { echo "Запускайте від root (sudo)." >&2; exit 1; }
 
+# Репозиторій належить користувачу cryptobot (setup.sh віддає йому теку),
+# а скрипт працює від root. Git від версії 2.35.2 відмовляється чіпати
+# репозиторій із "чужим" власником — саме на цьому падав update.sh із
+# "detected dubious ownership". Позначаємо теку довіреною явно.
+git config --global --get-all safe.directory 2>/dev/null | grep -qx "$APP_DIR" \
+	|| git config --global --add safe.directory "$APP_DIR"
+
 git -C "$APP_DIR" pull --ff-only
 "$APP_DIR/backend/venv/bin/pip" install -q -r "$APP_DIR/backend/requirements.txt"
 (cd "$APP_DIR/frontend" && npm ci --no-audit --no-fund && VITE_API_BASE= npm run build)

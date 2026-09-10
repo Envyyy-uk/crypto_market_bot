@@ -37,6 +37,13 @@ apt-get install -y -qq git curl ufw logrotate caddy \
 	python3 python3-venv python3-dev build-essential nodejs npm sqlite3
 
 echo "==> 2/8 Користувач і код"
+# Репозиторій належить користувачу cryptobot (setup.sh віддає йому теку),
+# а скрипт працює від root. Git від версії 2.35.2 відмовляється чіпати
+# репозиторій із "чужим" власником — саме на цьому падав update.sh із
+# "detected dubious ownership". Позначаємо теку довіреною явно.
+git config --global --get-all safe.directory 2>/dev/null | grep -qx "$APP_DIR" \
+	|| git config --global --add safe.directory "$APP_DIR"
+
 # Системний користувач без права входу: сервіс не має бути root.
 id -u "$APP_USER" >/dev/null 2>&1 || useradd --system --create-home --shell /usr/sbin/nologin "$APP_USER"
 if [[ -d "$APP_DIR/.git" ]]; then
